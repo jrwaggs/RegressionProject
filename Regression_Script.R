@@ -9,7 +9,7 @@ loandata <- read.csv('LoanStats3a.csv')
 # create a subset of data limited to those loans that failed + features 
 loan <- loandata %>%
   filter(loan_status == "Charged Off") %>%
-  select(loan_amnt,term,int_rate,installment,sub_grade,home_ownership,
+  select(loan_amnt,term,int_rate,inq_last_6mths,sub_grade,home_ownership,
          annual_inc,pymnt_plan,purpose,dti,total_pymnt,total_rec_prncp) %>%
   mutate(pct_paid = total_rec_prncp/loan_amnt * 100)
 
@@ -23,12 +23,28 @@ summary(loan$sub_grade)
 # factor home_ownership
 loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
 
+#factor payment plan variable
+loan$pymnt_plan <- factor(loan$pymnt_plan)
 
 unique(loan$purpose)
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
 
+
+# distribution of loans by % paid
+ggplot(failed_loan, aes(pct_paid))+
+  geom_histogram()
+
+
+# boxplot of % repaid by purpose, with coordinates flipped
+ggplot(loan, aes(purpose, pct_paid)) +
+  geom_boxplot() +
+  coord_flip()
+
+
+ggplot(loan,aes(sub_grade,pct_paid))+
+  geom_point()
 
 
 
@@ -38,7 +54,5 @@ ggplot(failed_loan, aes(loan_amnt,total_pymnt)) +
 ggplot(failed_loan, aes(loan_amnt,pct_paid)) +
   geom_point()
 
-ggplot(failed_loan, aes(pct_paid))+
-  geom_histogram()
-
+v
 pairs(failed_loan[1:5])
