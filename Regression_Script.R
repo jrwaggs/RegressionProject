@@ -36,6 +36,8 @@ summary(loan$purpose)
 ggplot(failed_loan, aes(pct_paid))+
   geom_histogram()
 
+mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
+
 
 # boxplot of % repaid by purpose, with coordinates flipped
 ggplot(loan, aes(purpose, pct_paid)) +
@@ -43,16 +45,4 @@ ggplot(loan, aes(purpose, pct_paid)) +
   coord_flip()
 
 
-ggplot(loan,aes(sub_grade,pct_paid))+
-  geom_point()
 
-
-
-ggplot(failed_loan, aes(loan_amnt,total_pymnt)) +
-  geom_point()
-
-ggplot(failed_loan, aes(loan_amnt,pct_paid)) +
-  geom_point()
-
-v
-pairs(failed_loan[1:5])
