@@ -19,6 +19,7 @@ loan$term <- factor(loan$term, labels = c("3year","5year"))
 # factor loan grades info @ https://www.lendingclub.com/foliofn/rateDetail.action
 loan$sub_grade <- factor(loan$sub_grade)
 summary(loan$sub_grade)
+# need to check if levels are ascending or descending
 
 # factor home_ownership
 loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
@@ -46,8 +47,8 @@ mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
 
 
 # boxplot of % repaid by purpose, with coordinates flipped
-ggplot(loan, aes(purpose, pct_paid)) +
-  geom_boxplot() +
+ggplot(loan, aes(purpose, pct_paid))+
+  geom_boxplot()+
   coord_flip()
 
 # boxplot plot of loan grade vs.pct_paid
