@@ -51,6 +51,11 @@ ggplot(loan, aes(purpose, pct_paid))+
   geom_boxplot()+
   coord_flip()
 
+# boxplot of loan amount by purpose
+ggplot(loan,aes(purpose,loan_amnt))+
+  geom_boxplot()+
+  coord_flip()
+
 # boxplot plot of loan grade vs.pct_paid
 ggplot(loan,aes(sub_grade,pct_paid))+
   geom_boxplot()
