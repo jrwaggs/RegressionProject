@@ -4,7 +4,7 @@ library(ggplot2)
 library(readr)
 
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv')
+loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
 
 # create a subset of data limited to those loans that failed + features 
 loan <- loandata %>%
@@ -31,6 +31,8 @@ unique(loan$purpose)
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
+
+
 
 #------------------------------- data exploration -------------------------------------
 
@@ -71,3 +73,7 @@ ggplot(loan, aes(dti))+
 # DTI vs. pct_paid
 ggplot(loan, aes(dti, pct_paid))+
   geom_point()
+
+# distribution of interest rates
+ggplot(loan,aes(int_rate))+
+  geom_histogram()
