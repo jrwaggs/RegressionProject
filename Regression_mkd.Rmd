@@ -44,6 +44,13 @@ loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
 ```
 
+### Abstract
+### Introduction
+### Overview of the DataSet
+### Exploratory analysis
+### Model Identification and Evaluation 
+### Model Application
+### Assumptions and Limitations
 
 ## R Markdown
 
