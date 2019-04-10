@@ -24,8 +24,6 @@ summary(loan$sub_grade)
 # factor home_ownership
 loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
 
-#factor payment plan variable
-loan$pymnt_plan <- factor(loan$pymnt_plan)
 
 unique(loan$purpose)
 # there are 15 purpose categories, -> factor 
