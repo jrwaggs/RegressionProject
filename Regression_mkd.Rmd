@@ -6,61 +6,82 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
 library(dplyr)
-library(readr)
+library(ggplot2)
 ```
 
-
-``` {r importing and working with the data, echo = FALSE}
+``` {r importing the data,echo = FALSE}
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
+loandata <- read.csv("LoanStats3a.csv",stringsAsFactors = FALSE)
+```
 
+```{r subsetting the data,echo = FALSE}
 # create a subset of data limited to those loans that failed + features 
 loan <- loandata %>%
   filter(loan_status == "Charged Off") %>%
   select(loan_amnt,term,int_rate,inq_last_6mths,sub_grade,home_ownership,
          annual_inc,purpose,dti,total_pymnt,total_rec_prncp) %>%
   mutate(pct_paid = total_rec_prncp/loan_amnt * 100)
+```
 
+```{r factor term, echo = FALSE}
 #factor loan_term; 2 levels (3,5 years)
 loan$term <- factor(loan$term, labels = c("3year","5year"))
+```
 
+```{r factor grades, echo = FALSE}
 # factor loan grades info @ https://www.lendingclub.com/foliofn/rateDetail.action
 loan$sub_grade <- factor(loan$sub_grade)
-summary(loan$sub_grade)
-# need to check if levels are ascending or descending
+```
 
+```{r factor ownership, echo = FALSE}
 # factor home_ownership
 loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
+```
 
-#factor payment plan variable
-loan$pymnt_plan <- factor(loan$pymnt_plan)
-
-unique(loan$purpose)
+```{r factor purpose, echo = FALSE}
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
-summary(loan$purpose)
 ```
 
 ### Abstract
+Abstract text
+
 ### Introduction
+Introduction text
+
 ### Overview of the DataSet
+  The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at 
+  https://www.lendingclub.com/foliofn/rateDetail.action . A more focused data set was then created by selecting all records of failed loans,(i.e. where loan_status was recorded as "Charged Off",) and the following features:
+
+  - **loan_amnt** - The original principal loan amount.
+  + **term - Term** length of the loan: 36 or 60 months.
+  + **int_rate** - Interest rate of the loan.
+  + **inq_last_6mths** - # of inquiries on the borrowers credit report in the last 6 months
+  + **sub_grade** - The loan subgrade assigned by Lending club: A1 (best) to G5 (worst.)
+  + **home_ownership** - The borrowers ownership status: Rent, Mortgag or Own.
+  + **annual_inc** - The borrowers annual income in USD.
+  + **purpose** - General purpose for the loan: 1 of 15 categories.
+  + **dti** - The borrower's debt-to-income ratio
+  + **total_pymnt** - total principal + interest received before the loan was charged off.
+  + **total_rec_prncp** - total principal received before the loan was charged off.
+  + **pct_paid** - percent of loan principal paid: total principal paid/loan amount.
+  
 ### Exploratory analysis
+Exploratory text
+
 ### Model Identification and Evaluation 
+Model Identification text
+
+
 ### Model Application
+Model application text
+
 ### Assumptions and Limitations
+Assumption/Limitation text
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
 
 ## Including Plots
 
