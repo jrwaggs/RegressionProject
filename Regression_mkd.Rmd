@@ -1,0 +1,66 @@
+---
+title: "Regression Project"
+author: "JR Waggoner, Jose Baldomar, Andre Louie"
+date: "April 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(readr)
+```
+
+
+``` {r importing and working with the data, echo = FALSE}
+# import the CSV
+loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
+
+# create a subset of data limited to those loans that failed + features 
+loan <- loandata %>%
+  filter(loan_status == "Charged Off") %>%
+  select(loan_amnt,term,int_rate,inq_last_6mths,sub_grade,home_ownership,
+         annual_inc,purpose,dti,total_pymnt,total_rec_prncp) %>%
+  mutate(pct_paid = total_rec_prncp/loan_amnt * 100)
+
+#factor loan_term; 2 levels (3,5 years)
+loan$term <- factor(loan$term, labels = c("3year","5year"))
+
+# factor loan grades info @ https://www.lendingclub.com/foliofn/rateDetail.action
+loan$sub_grade <- factor(loan$sub_grade)
+summary(loan$sub_grade)
+# need to check if levels are ascending or descending
+
+# factor home_ownership
+loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
+
+#factor payment plan variable
+loan$pymnt_plan <- factor(loan$pymnt_plan)
+
+unique(loan$purpose)
+# there are 15 purpose categories, -> factor 
+loan$purpose <- factor(loan$purpose)
+summary(loan$purpose)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
