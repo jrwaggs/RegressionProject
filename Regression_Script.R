@@ -47,7 +47,13 @@ ggplot(loan,aes(loan_amnt))+
   ggtitle("Distribution of Loan Amounts")+
   xlab("Loan amount")
 
-# distribution of loans by % paid
+# distribution of interest rates
+ggplot(loan,aes(int_rate))+
+  geom_histogram(bins=20)+
+  ggtitle("Distribution of Loan Interest Rates")+
+  xlab("Interest Rate")
+
+# distribution of  % paid
 ggplot(loan, aes(pct_paid))+
   geom_histogram()+
   ggtitle("Distribution of % Paid")+
@@ -59,11 +65,18 @@ ggplot(loan, aes(dti))+
   ggtitle("Distribution of Borrower DTI")+
   xlab("DTI")
 
-# distribution of interest rates
-ggplot(loan,aes(int_rate))+
-  geom_histogram(bins=20)+
-  ggtitle("Distribution of Loan Interest Rates")+
-  xlab("Interest Rate")
+#distribution of of annual incomes
+ggplot(loan,aes(annual_inc))+
+  geom_histogram(bins = 50)+
+  ggtitle(("Distribution of Borrower Annual Income"))+
+  xlab("Annual Income")
+
+# Count of loan purpose
+ggplot(loan,aes(purpose))+
+  geom_bar()+
+  ggtitle("Count of Loans by purpose")+
+  xlab("Purpose")+
+  coord_flip()
 
 #----------CORRELATION ANALYSIS OF NUMERIC VARIABLES 
 
