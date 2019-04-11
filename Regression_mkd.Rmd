@@ -66,8 +66,6 @@ Introduction text
   + **annual_inc** - The borrowers annual income in USD.
   + **purpose** - General purpose for the loan: 1 of 15 categories.
   + **dti** - The borrower's debt-to-income ratio
-  + **total_pymnt** - total principal + interest received before the loan was charged off.
-  + **total_rec_prncp** - total principal received before the loan was charged off.
   + **pct_paid** - percent of loan principal paid: total principal paid/loan amount.
   
 ### Exploratory analysis
