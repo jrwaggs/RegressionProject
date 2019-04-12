@@ -71,6 +71,9 @@ Introduction text
 ### Exploratory analysis
 Exploratory text
 
+##### Distributions
+
+
 
 ##### Categorical Variables
 
@@ -111,7 +114,7 @@ ggplot(loan,aes(home_ownership,pct_paid))+
   ylab("% Paid")
 ```
 
-##### Pair Plots
+##### Correlation Analysis
 ```{r pairwise plot, echo = FALSE}
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
