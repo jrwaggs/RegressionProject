@@ -72,8 +72,55 @@ Introduction text
 Exploratory text
 
 ##### Distributions
+```{r % paid dist,echo=FALSE}
+# distribution of  % paid
+ggplot(loan, aes(pct_paid))+
+  geom_histogram()+
+  ggtitle("Distribution of % Paid")+
+  xlab("% Paid")
+```
+
+```{r loan amt dist,echo=FALSE}
+#distribution of loan amounts
+ggplot(loan,aes(loan_amnt))+
+  geom_histogram(bins = 7)+
+  ggtitle("Distribution of Loan Amounts")+
+  xlab("Loan amount")
+```
+
+```{r int rate dist,echo=FALSE}
+# distribution of interest rates
+ggplot(loan,aes(int_rate))+
+  geom_histogram(bins=20)+
+  ggtitle("Distribution of Loan Interest Rates")+
+  xlab("Interest Rate")
+```
 
 
+```{rdti dist,echo=FALSE}
+# DTI distribution
+ggplot(loan, aes(dti))+
+  geom_histogram()+
+  ggtitle("Distribution of Borrower DTI")+
+  xlab("DTI")
+```
+
+```{r income dist,echo=FALSE}
+#distribution of of annual incomes
+ggplot(loan,aes(annual_inc))+
+  geom_histogram(bins = 50)+
+  ggtitle(("Distribution of Borrower Annual Income"))+
+  xlab("Annual Income")
+```
+
+```{r loan purpose, echo = FALSE}
+# Count of loan purpose
+ggplot(loan,aes(purpose))+
+  geom_bar()+
+  ggtitle("Count of Loans by purpose")+
+  xlab("Purpose")+
+  coord_flip()
+```
 
 ##### Categorical Variables
 
@@ -112,6 +159,16 @@ ggplot(loan,aes(home_ownership,pct_paid))+
   ggtitle("% Paid by Home Ownership")+
   xlab("Home Ownership")+
   ylab("% Paid")
+```
+
+```{r loan amount by purpose, echo = FALSE}
+# boxplot of loan amount by purpose
+ggplot(loan,aes(purpose,loan_amnt))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Loan Amount by Purpose")+
+  xlab("Purpose")+
+  ylab("Loan Amount")
 ```
 
 ##### Correlation Analysis
