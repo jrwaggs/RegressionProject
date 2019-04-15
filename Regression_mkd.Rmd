@@ -50,12 +50,21 @@ Introduction text
   - **loan_amnt** - The original principal loan amount.
   + **term** - Term length of the loan: 36 or 60 months.
   + **int_rate** - Interest rate of the loan.
-  + **inq_last_6mths** - # of inquiries on the borrowers credit report in the last 6 months
+  + **inq_last_6mths** - Number of inquiries on the borrowers credit report in the last 6 months
   + **annual_inc** - The borrowers annual income in USD.
   + **purpose** - General purpose for the loan: 1 of 15 categories.
   + **installment** - Amount of monthly loan payment.
   + **delinq_2yrs** - Number of delinquent accounts in the borrowers credit history in the last 2 years.
-  + **revol_bal** - Borrowers revolving credit balance.
+  + **revol_bal** - The borrowers revolving credit balance.
+  
+```{r exclude 1 record, echo = FALSE}
+# randomly pull one record from the dataframe
+
+#copy row @ index 291 to new DF
+test_case <- loan[291,]
+#delete row @ 291 from original DF
+loan <- loan[-c(291),]
+```
   
 ### **Exploratory analysis**
 Exploratory text
