@@ -10,19 +10,19 @@ loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
 # create a subset of data limited to those loans that failed + features 
 loan <- loandata %>%
   filter(loan_status == "Charged Off") %>%
-  mutate(pct_paid = total_rec_prncp/loan_amnt * 100) %>%
-  select(loan_amnt,term,int_rate,inq_last_6mths,sub_grade,home_ownership,
-         annual_inc,purpose,dti,pct_paid) 
+  mutate(tot_paid= total_rec_prncp+total_rec_int) %>%
+  select(loan_amnt,term,int_rate,inq_last_6mths,grade,home_ownership,
+         annual_inc,purpose,dti,tot_paid,installment,emp_length,
+         delinq_2yrs,open_acc,pub_rec,total_acc,settlement_percentage,revol_bal
+         ,total_rec_prncp) 
 
 #factor loan_term; 2 levels (3,5 years)
 loan$term <- factor(loan$term, labels = c("3year","5year"))
 
-# factor loan grades info @ https://www.lendingclub.com/foliofn/rateDetail.action
-#gradelevels <- c("A1","A2","A3","A4","A5","B1","B2"
-                 #"B3","B4","B5","C1")
+loan$emp_length <- factor(loan$emp_length)
 
-loan$sub_grade <- factor(loan$sub_grade)
-summary(loan$sub_grade)
+loan$grade <- factor(loangrade)
+summary(loan$grade)
 # need to check if levels are ascending or descending
 
 # factor home_ownership
@@ -55,7 +55,7 @@ ggplot(loan,aes(int_rate))+
 
 # distribution of  % paid
 ggplot(loan, aes(pct_paid))+
-  geom_histogram()+
+  geom_histogram(bins = 30)+
   ggtitle("Distribution of % Paid")+
   xlab("% Paid")
 
@@ -98,7 +98,7 @@ ggplot(loan, aes(purpose, pct_paid))+
   ylab("Purpose")
 
 # boxplot plot of loan grade vs.pct_paid
-ggplot(loan,aes(sub_grade,pct_paid))+
+ggplot(loan,aes(grade,pct_paid))+
   geom_boxplot()+
   ggtitle("% Paid by Sub-grade")+
   xlab("Loan Sub-Grade")+
@@ -118,6 +118,14 @@ ggplot(loan,aes(home_ownership,pct_paid))+
   xlab("Home Ownership")+
   ylab("% Paid")
 
+# boxplot of loan amount by purpose
+ggplot(loan,aes(purpose,loan_amnt))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Loan Amount by Purpose")+
+  xlab("Purpose")+
+  ylab("Loan Amount")
+
 # ---------- OTHER PLOTS
 # DTI vs. pct_paid
 ggplot(loan, aes(dti, pct_paid))+
@@ -134,3 +142,11 @@ ggplot(loan,aes(purpose,loan_amnt))+
   ggtitle("Loan Amount by Purpose")+
   xlab("Purpose")+
   ylab("Loan Amount")
+
+#----------------------- MODELING ----------------------
+
+model = lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+grade+home_ownership+
+           annual_inc+purpose+dti+installment+emp_length+delinq_2yrs+
+           open_acc+pub_rec+total_acc+revol_bal,data = loan)
+
+summary(model)
