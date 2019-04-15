@@ -7,33 +7,22 @@ library(GGally)
 # import the CSV
 loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
 
-# create a subset of data limited to those loans that failed + features 
+# create a subset of data features & target variable
 loan <- loandata %>%
-  filter(loan_status == "Charged Off") %>%
-  mutate(tot_paid= total_rec_prncp+total_rec_int) %>%
-  select(loan_amnt,term,int_rate,inq_last_6mths,grade,home_ownership,
-         annual_inc,purpose,dti,tot_paid,installment,emp_length,
-         delinq_2yrs,open_acc,pub_rec,total_acc,settlement_percentage,revol_bal
-         ,total_rec_prncp) 
+ # filter(loan_status == "Charged Off") %>%
+  mutate(tot_paid = total_rec_prncp + total_rec_int) %>%
+  select(tot_paid,loan_amnt,term,int_rate,inq_last_6mths,
+         annual_inc,purpose,installment,
+         delinq_2yrs,revol_bal)
 
-#factor loan_term; 2 levels (3,5 years)
-loan$term <- factor(loan$term, labels = c("3year","5year"))
-
-loan$emp_length <- factor(loan$emp_length)
-
-loan$grade <- factor(loangrade)
-summary(loan$grade)
-# need to check if levels are ascending or descending
-
-# factor home_ownership
-loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE","OWN"))
-
+#factor loan term; 2 levels (3,5 years)
+loan$term <- factor(loan$term, levels = c("36 months","60 months"),labels = c("3year","5year"))
 
 unique(loan$purpose)
+
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
-
 
 
 #------------------------------- data exploration -------------------------------------
@@ -53,17 +42,11 @@ ggplot(loan,aes(int_rate))+
   ggtitle("Distribution of Loan Interest Rates")+
   xlab("Interest Rate")
 
-# distribution of  % paid
-ggplot(loan, aes(pct_paid))+
+# distribution of total paid
+ggplot(loan, aes(tot_paid))+
   geom_histogram(bins = 30)+
-  ggtitle("Distribution of % Paid")+
-  xlab("% Paid")
-
-# DTI distribution
-ggplot(loan, aes(dti))+
-  geom_histogram()+
-  ggtitle("Distribution of Borrower DTI")+
-  xlab("DTI")
+  ggtitle("Distribution of Total Paid")+
+  xlab("Total Paid")
 
 #distribution of of annual incomes
 ggplot(loan,aes(annual_inc))+
@@ -82,41 +65,27 @@ ggplot(loan,aes(purpose))+
 
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
-  select(loan_amnt,int_rate,inq_last_6mths,annual_inc,dti,pct_paid)
+  select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
 
 #pairwise ploits of numeric values  
 ggpairs(numeric_loan)
 
 # ---------RELATIONSHIPS BETWEEN CATEGORICAL VARIABLES AND TARGET VARIABLE
 
-# boxplot of % repaid by purpose, with coordinates flipped
-ggplot(loan, aes(purpose, pct_paid))+
+# boxplot of total repaid by purpose, with coordinates flipped
+ggplot(loan, aes(purpose, tot_paid))+
   geom_boxplot()+
   coord_flip()+
-  ggtitle("% Paid by Purpose")+
-  xlab("% Paid")+
-  ylab("Purpose")
+  ggtitle("Total Paid by Purpose")+
+  xlab("Purpose")+
+  ylab("Total Paid")
 
-# boxplot plot of loan grade vs.pct_paid
-ggplot(loan,aes(grade,pct_paid))+
+# boxplot of loanterm  vs. total paid
+ggplot(loan,aes(term,tot_paid)) +
   geom_boxplot()+
-  ggtitle("% Paid by Sub-grade")+
-  xlab("Loan Sub-Grade")+
-  ylab("% Paid")
-
-# boxplot of loanterm  vs. pct paid
-ggplot(loan,aes(term,pct_paid)) +
-  geom_boxplot()+
-  ggtitle("% Paid by Loan Term")+
+  ggtitle("Total Paid by Loan Term")+
   xlab("Loan Term")+
-  ylab("% Paid")
-
-# boxplot of home ownership to pct_paid
-ggplot(loan,aes(home_ownership,pct_paid))+
-  geom_boxplot()+
-  ggtitle("% Paid by Home Ownership")+
-  xlab("Home Ownership")+
-  ylab("% Paid")
+  ylab("Total Paid")
 
 # boxplot of loan amount by purpose
 ggplot(loan,aes(purpose,loan_amnt))+
@@ -145,8 +114,10 @@ ggplot(loan,aes(purpose,loan_amnt))+
 
 #----------------------- MODELING ----------------------
 
-model = lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+grade+home_ownership+
-           annual_inc+purpose+dti+installment+emp_length+delinq_2yrs+
-           open_acc+pub_rec+total_acc+revol_bal,data = loan)
+
+model = lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
+             annual_inc+purpose+installment+delinq_2yrs+
+             revol_bal
+           ,data = loan)
 
 summary(model)
