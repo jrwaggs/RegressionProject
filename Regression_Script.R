@@ -25,6 +25,13 @@ loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
 
 
+# randomly pull one record from the dataframe
+
+#copy row @ index 291 to new DF
+test_case <- loan[291,]
+#delete row @ 291 from original DF
+loan <- loan[-c(291),]
+
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
 
