@@ -47,13 +47,13 @@ loan$home_ownership <- factor(loan$home_ownership, levels = c("RENT","MORTGAGE",
 loan$purpose <- factor(loan$purpose)
 ```
 
-### Abstract
+### **Abstract**
 Abstract text
 
-### Introduction
+### **Introduction**
 Introduction text
 
-### Overview of the DataSet
+### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at 
   https://www.lendingclub.com/foliofn/rateDetail.action . A more focused data set was then created by selecting all records of failed loans,(i.e. where loan_status was recorded as "Charged Off",) and the following features:
 
@@ -68,14 +68,15 @@ Introduction text
   + **dti** - The borrower's debt-to-income ratio
   + **pct_paid** - percent of loan principal paid: total principal paid/loan amount.
   
-### Exploratory analysis
+### **Exploratory analysis**
 Exploratory text
 
-##### Distributions
-```{r % paid dist,echo=FALSE}
+##### **Distributions**
+
+```{r  paid dist, echo=FALSE}
 # distribution of  % paid
 ggplot(loan, aes(pct_paid))+
-  geom_histogram()+
+  geom_histogram(bins = 30)+
   ggtitle("Distribution of % Paid")+
   xlab("% Paid")
 ```
@@ -122,7 +123,7 @@ ggplot(loan,aes(purpose))+
   coord_flip()
 ```
 
-##### Categorical Variables
+##### **Categorical Variables**
 
 ```{r repaid by purpose, echo = FALSE}
 # boxplot of % repaid by purpose, with coordinates flipped
@@ -171,7 +172,7 @@ ggplot(loan,aes(purpose,loan_amnt))+
   ylab("Loan Amount")
 ```
 
-##### Correlation Analysis
+##### **Correlation Analysis**
 ```{r pairwise plot, echo = FALSE}
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
@@ -181,14 +182,14 @@ numeric_loan <- loan %>%
 ggpairs(numeric_loan)
 ```
 
-### Model Identification and Evaluation 
+### **Model Identification and Evaluation** 
 Model Identification text
 
 
-### Model Application
+### **Model Application**
 Model application text
 
-### Assumptions and Limitations
+### **Assumptions and Limitations**
 Assumption/Limitation text
 
 
