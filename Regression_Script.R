@@ -5,7 +5,7 @@ library(readr)
 library(GGally)
 
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
+loandata <- read.csv('LoanStats3a.csv')
 
 # create a subset of data features & target variable
 loan <- loandata %>%
@@ -128,3 +128,7 @@ model = lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
            ,data = loan)
 
 summary(model)
+
+#-----------------------Model Application-----------------
+#apply model to test case
+predict(model,test_case)
