@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
 library(ggplot2)
 library(GGally)
@@ -168,7 +169,7 @@ Model application text
 
 ```{r predict for holdout case,echo = FALSE}
 #apply model to test case
-predict(model,test_case)
+predict(testmodel3,test_case)
 ```
 
 https://www.statmethods.net/stats/regression.html
