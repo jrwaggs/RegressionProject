@@ -7,44 +7,19 @@ library(GGally)
 # import the CSV
 loandata <- read.csv('LoanStats3a.csv')
 
-loandata <- loandata %>%
+loan <- loandata
+
+#convert revolving util from string % to numeric decimal
+loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
+
+#compute target dependent variable, total paid
+loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 
-
-#exclude employee title(free text), sub grade(same as grade), funded/funded inv(same as amount),desc(free text)
-#   title (free text), total payment/received_prncp&int/inv/latefee/recoveries (same/components of target variable)
-testmodel <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
-                  annual_inc+verification_status+issue_d+loan_status+purpose+zip_code+addr_state+
-                  dti+delinq_2yrs+earliest_cr_line+inq_last_6mths+mths_since_last_delinq+
-                  mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+total_acc+
-                  last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
-                  ,data=loandata)
-
-summary(testmodel)
-
-# pull any variable with p-value > 0.9
-
-
-
-
-
-
-
-
-
-
-# create a subset of data features & target variable
-loan <- loandata %>%
- # filter(loan_status == "Charged Off") %>%
-  select(tot_paid,loan_amnt,term,int_rate,inq_last_6mths,
-         annual_inc,purpose,installment,
-         delinq_2yrs,revol_bal)
-
-
 #drop NAs
-loan <-loan[complete.cases(loan),]  
-         
-  
+#loan <-loan[complete.cases(loandata),]  
+
+
 #factor loan term; 2 levels (3,5 years)
 loan$term <- factor(loan$term)
 
@@ -151,14 +126,52 @@ ggplot(loan,aes(purpose,loan_amnt))+
   ylab("Loan Amount")
 
 #----------------------- MODELING ----------------------
+#exclude employee title(free text), sub grade(same as grade), funded/funded inv(same as amount),desc(free text)
+#   title (free text), total payment/received_prncp&int/inv/latefee/recoveries (same/components of target variable)
+testmodel <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                  annual_inc+verification_status+issue_d+loan_status+purpose+zip_code+addr_state+
+                  dti+delinq_2yrs+earliest_cr_line+inq_last_6mths+mths_since_last_delinq+
+                  mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+total_acc+
+                  last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                ,data=loan)
+
+summary(testmodel) # adjusted r2 of 87.35
+
+# drop verification status (group p values of .591 & .9628)
+#   zip_code, earliest credit line
+testmodel1 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+addr_state+
+                   dti+delinq_2yrs+inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+total_acc+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+
+summary(testmodel1) # adjusted r2 of 88.24,
+
+#pull total acc p =.89
+
+testmodel2 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+addr_state+
+                   dti+delinq_2yrs+inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+
+summary(testmodel2) # adjusted r2 of 88.24,
+
+#remove delinq 2 years, dti
+testmodel3 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+addr_state+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+summary(testmodel3) # adjusted r2 of 88.25
 
 
-model <- lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
-             annual_inc+purpose+installment+delinq_2yrs+
-             revol_bal
-           ,data = loan)
 
-summary(model)
+
+
 
 #-----------------------Model Application-----------------
 #apply model to test case
