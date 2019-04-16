@@ -104,9 +104,10 @@ ggplot(loan,aes(int_rate))+
 ```{r income dist,echo=FALSE}
 #distribution of of annual incomes
 ggplot(loan,aes(annual_inc))+
-  geom_histogram(bins = 50)+
+  geom_histogram(bins = 20)+
   ggtitle(("Distribution of Borrower Annual Income"))+
-  xlab("Annual Income")
+  xlab("Annual Income")+
+  xlim(0,200000)
 ```
 
 ```{r loan purpose, echo = FALSE}
