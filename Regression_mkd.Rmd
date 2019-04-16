@@ -50,19 +50,11 @@ Abstract text
 Introduction text
 the context, what we set out to research or discover.  what is the application or intended use
 
-### **Overview of the DataSet**
-  The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . A more narrlowly focused data set was then created by selecting the following features:
+model could be used to churn through existing loan portfolio and estimate what value is remaining.
 
-  - **loan_amnt** - The original principal loan amount.
-  + **term** - Term length of the loan: 36 or 60 months.
-  + **int_rate** - Interest rate of the loan.
-  + **inq_last_6mths** - Number of inquiries on the borrowers credit report in the last 6 months
-  + **annual_inc** - The borrowers annual income in USD.
-  + **purpose** - General purpose for the loan: 1 of 15 categories.
-  + **installment** - Amount of monthly loan payment.
-  + **delinq_2yrs** - Number of delinquent accounts in the borrowers credit history in the last 2 years.
-  + **revol_bal** - The borrowers revolving credit balance.
-  
+### **Overview of the DataSet**
+  The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
+
 ```{r exclude 1 record, echo = FALSE}
 # randomly pull one record from the dataframe
 
