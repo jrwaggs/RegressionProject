@@ -150,7 +150,7 @@ ggplot(loan,aes(purpose,loan_amnt))+
 numeric_loan <- loan %>%
    select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
 
-#pairwise ploits of numeric values  
+#pairwise plots of numeric values  
 ggpairs(numeric_loan)
 ```
 
@@ -160,6 +160,13 @@ Model Identification text
 
 ### **Model Application**
 Model application text
+
+```{r predict for holdout case,echo = FALSE}
+#apply model to test case
+predict(model,test_case)
+```
+
+https://www.statmethods.net/stats/regression.html
 
 ### **Assumptions and Limitations**
 Assumption/Limitation text

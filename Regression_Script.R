@@ -5,7 +5,7 @@ library(readr)
 library(GGally)
 
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv')
+loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
 
 # create a subset of data features & target variable
 loan <- loandata %>%
@@ -15,8 +15,13 @@ loan <- loandata %>%
          annual_inc,purpose,installment,
          delinq_2yrs,revol_bal)
 
+
+#drop NAs
+loan <-loan[complete.cases(loan),]  
+         
+  
 #factor loan term; 2 levels (3,5 years)
-loan$term <- factor(loan$term, levels = c("36 months","60 months"),labels = c("3year","5year"))
+loan$term <- factor(loan$term)
 
 unique(loan$purpose)
 
@@ -122,7 +127,7 @@ ggplot(loan,aes(purpose,loan_amnt))+
 #----------------------- MODELING ----------------------
 
 
-model = lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
+model <- lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
              annual_inc+purpose+installment+delinq_2yrs+
              revol_bal
            ,data = loan)
