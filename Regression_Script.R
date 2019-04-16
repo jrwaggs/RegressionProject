@@ -5,12 +5,37 @@ library(readr)
 library(GGally)
 
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv',stringsAsFactors = FALSE)
+loandata <- read.csv('LoanStats3a.csv')
+
+loandata <- loandata %>%
+  mutate(tot_paid = total_rec_prncp + total_rec_int)
+
+
+#exclude employee title(free text), sub grade(same as grade), funded/funded inv(same as amount),desc(free text)
+#   title (free text), total payment/received_prncp&int/inv/latefee/recoveries (same/components of target variable)
+testmodel <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                  annual_inc+verification_status+issue_d+loan_status+purpose+zip_code+addr_state+
+                  dti+delinq_2yrs+earliest_cr_line+inq_last_6mths+mths_since_last_delinq+
+                  mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+total_acc+
+                  last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                  ,data=loandata)
+
+summary(testmodel)
+
+# pull any variable with p-value > 0.9
+
+
+
+
+
+
+
+
+
 
 # create a subset of data features & target variable
 loan <- loandata %>%
  # filter(loan_status == "Charged Off") %>%
-  mutate(tot_paid = total_rec_prncp + total_rec_int) %>%
   select(tot_paid,loan_amnt,term,int_rate,inq_last_6mths,
          annual_inc,purpose,installment,
          delinq_2yrs,revol_bal)
@@ -62,9 +87,10 @@ ggplot(loan, aes(tot_paid))+
 
 #distribution of of annual incomes
 ggplot(loan,aes(annual_inc))+
-  geom_histogram(bins = 50)+
+  geom_histogram(bins = 20)+
   ggtitle(("Distribution of Borrower Annual Income"))+
-  xlab("Annual Income")
+  xlab("Annual Income")+
+  xlim(0,200000)
 
 # Count of loan purpose
 ggplot(loan,aes(purpose))+
