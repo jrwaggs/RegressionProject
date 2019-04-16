@@ -28,9 +28,14 @@ loan <- loandata %>%
          delinq_2yrs,revol_bal)
 ```
 
+```{r drop nas,echo = FALSE}
+#drop NAs
+loan <-loan[complete.cases(loan),] 
+```
+
 ```{r factor term, echo = FALSE}
 #factor loan_term; 2 levels (3,5 years)
-loan$term <- factor(loan$term, labels = c("3year","5year"))
+loan$term <- factor(loan$term)
 ```
 
 ```{r factor purpose, echo = FALSE}
@@ -43,6 +48,7 @@ Abstract text
 
 ### **Introduction**
 Introduction text
+the context, what we set out to research or discover.  what is the application or intended use
 
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . A more narrlowly focused data set was then created by selecting the following features:
@@ -73,7 +79,7 @@ Exploratory text
 
 ```{r  paid dist, echo=FALSE}
 # distribution of Total paid
-ggplot(loan, aes(pct_paid))+
+ggplot(loan, aes(tot_paid))+
   geom_histogram(bins = 30)+
   ggtitle("Distribution of Total Paid")+
   xlab("Total Paid")
@@ -156,7 +162,12 @@ ggpairs(numeric_loan)
 
 ### **Model Identification and Evaluation** 
 Model Identification text
-
+```{r the model, echo = FALSE}
+model <- lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
+             annual_inc+purpose+installment+delinq_2yrs+
+             revol_bal
+           ,data = loan)
+```
 
 ### **Model Application**
 Model application text
