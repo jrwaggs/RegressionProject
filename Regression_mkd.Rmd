@@ -15,22 +15,19 @@ library(GGally)
 
 ``` {r importing the data,echo = FALSE}
 # import the CSV
-loandata <- read.csv("LoanStats3a.csv",stringsAsFactors = FALSE)
+loandata <- read.csv("LoanStats3a.csv")
+loan <- loandata
 ```
 
-```{r subsetting the data,echo = FALSE}
-# create a subset of data 
-loan <- loandata %>%
- # filter(loan_status == "Charged Off") %>%
-  mutate(tot_paid = total_rec_prncp + total_rec_int) %>%
-  select(tot_paid,loan_amnt,term,int_rate,inq_last_6mths,
-         annual_inc,purpose,installment,
-         delinq_2yrs,revol_bal)
+```{r convert revolving utilization to numeric,echo = FALSE}
+#convert revolving util from string % to numeric decimal
+loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
 ```
 
-```{r drop nas,echo = FALSE}
-#drop NAs
-loan <-loan[complete.cases(loan),] 
+```{r target variable,echo = FALSE}
+#compute target dependent variable, total paid
+loan <- loan %>%
+  mutate(tot_paid = total_rec_prncp + total_rec_int)
 ```
 
 ```{r factor term, echo = FALSE}
@@ -156,10 +153,14 @@ ggpairs(numeric_loan)
 ### **Model Identification and Evaluation** 
 Model Identification text
 ```{r the model, echo = FALSE}
-model <- lm(tot_paid~loan_amnt+term+int_rate+inq_last_6mths+
-             annual_inc+purpose+installment+delinq_2yrs+
-             revol_bal
-           ,data = loan)
+testmodel3 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+addr_state+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+summary(testmodel3) # adjusted r2 of 88.25
+
 ```
 
 ### **Model Application**
