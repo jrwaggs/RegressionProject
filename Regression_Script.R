@@ -34,9 +34,9 @@ summary(loan$purpose)
 # randomly pull one record from the dataframe
 
 #copy row @ index 2000 to new DF
-test_case <- loan[2000,]
+test_case <- loan[c(2000,100,467,221),]
 #delete row @ 2000 from original DF
-loan <- loan[-c(2000),]
+loan <- loan[-c(2000,100,467,221),]
 
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
@@ -79,7 +79,9 @@ ggplot(loan,aes(purpose))+
 
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
-  select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
+  select(int_rate,installment,annual_inc,inq_last_6mths,
+         mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
+         revol_util,tot_paid  )
 
 #pairwise plots of numeric values  
 ggpairs(numeric_loan)
@@ -169,13 +171,19 @@ testmodel3 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+h
                  ,data=loan)
 summary(testmodel3) # adjusted r2 of 88.25
 
-
-
+#pull loan amount variable, it is colinear with installment
+testmodel4 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+addr_state+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+summary(testmodel4) # adjusted r2 of 88.11
 
 
 #-----------------------Model Application-----------------
 #apply model to test case
-predict(testmodel3,test_case,interval = "predict")
+predict(testmodel4,test_case,interval = "predict")
 
 
 #---------------------------Residuals ?
@@ -194,8 +202,11 @@ ggplot(modeldf,aes(.fitted,.resid))+
 ncvTest(testmodel3)
 
 #quantile plot
-qqPlot(testmodel3)
+qqPlot(testmodel3,pch=16)
 
 #residual normality test
   #  Very small p value, residuals not normally distributed
 shapiro.test(testmodel3$residuals)
+
+
+vif(testmodel3)
