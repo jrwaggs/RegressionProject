@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 library(GGally)
+library(broom)
 
 # import the CSV
 loandata <- read.csv('LoanStats3a.csv')
@@ -80,7 +81,7 @@ ggplot(loan,aes(purpose))+
 numeric_loan <- loan %>%
   select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
 
-#pairwise ploits of numeric values  
+#pairwise plots of numeric values  
 ggpairs(numeric_loan)
 
 # ---------RELATIONSHIPS BETWEEN CATEGORICAL VARIABLES AND TARGET VARIABLE
@@ -174,8 +175,27 @@ summary(testmodel3) # adjusted r2 of 88.25
 
 #-----------------------Model Application-----------------
 #apply model to test case
-predict(testmodel3,test_case)
+predict(testmodel3,test_case,interval = "predict")
 
 
 #---------------------------Residuals ?
+#augment model summary to df
+modeldf <- augment(testmodel3)
+
+#plot residiuals
+ggplot(modeldf,aes(.fitted,.resid))+
+  geom_point()+
+  ylim(-15000,15000)+
+  geom_line( y = 0, linetype = 2, color = "darkred")
   
+  
+#test for non constant variance, 
+  #very small P score, non constant variance is present
+ncvTest(testmodel3)
+
+#quantile plot
+qqPlot(testmodel3)
+
+#residual normality test
+  #  Very small p value, residuals not normally distributed
+shapiro.test(testmodel3$residuals)
