@@ -32,9 +32,9 @@ summary(loan$purpose)
 
 # randomly pull one record from the dataframe
 
-#copy row @ index 291 to new DF
+#copy row @ index 2000 to new DF
 test_case <- loan[2000,]
-#delete row @ 291 from original DF
+#delete row @ 2000 from original DF
 loan <- loan[-c(2000),]
 
 #------------------------------- data exploration -------------------------------------
@@ -172,9 +172,10 @@ summary(testmodel3) # adjusted r2 of 88.25
 
 
 
-
-
 #-----------------------Model Application-----------------
 #apply model to test case
 predict(testmodel3,test_case)
+
+
+#---------------------------Residuals ?
   
