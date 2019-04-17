@@ -17,7 +17,7 @@ loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 
 #drop NAs
-#loan <-loan[complete.cases(loandata),]  
+loan <-loan[complete.cases(loandata),]  
 
 
 #factor loan term; 2 levels (3,5 years)
@@ -33,9 +33,9 @@ summary(loan$purpose)
 # randomly pull one record from the dataframe
 
 #copy row @ index 291 to new DF
-test_case <- loan[291,]
+test_case <- loan[2000,]
 #delete row @ 291 from original DF
-loan <- loan[-c(291),]
+loan <- loan[-c(2000),]
 
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
@@ -173,6 +173,8 @@ summary(testmodel3) # adjusted r2 of 88.25
 
 
 
+
 #-----------------------Model Application-----------------
 #apply model to test case
-predict(model,test_case)
+predict(testmodel3,test_case)
+  

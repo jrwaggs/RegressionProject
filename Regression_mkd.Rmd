@@ -31,6 +31,11 @@ loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 ```
 
+```{r drop all nas, echo = false}
+#drop NAs
+loan <-loan[complete.cases(loandata),]  
+```
+
 ```{r factor term, echo = FALSE}
 #factor loan_term; 2 levels (3,5 years)
 loan$term <- factor(loan$term)
@@ -56,10 +61,10 @@ model could be used to churn through existing loan portfolio and estimate what v
 ```{r exclude 1 record, echo = FALSE}
 # randomly pull one record from the dataframe
 
-#copy row @ index 291 to new DF
-test_case <- loan[291,]
-#delete row @ 291 from original DF
-loan <- loan[-c(291),]
+#copy row @ index 2000 to new DF
+test_case <- loan[2000,]
+#delete row @ 2000 from original DF
+loan <- loan[-c(2000),]
 ```
   
 ### **Exploratory analysis**
