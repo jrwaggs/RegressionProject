@@ -17,6 +17,7 @@ library(broom)
 library(jtools)
 library(anytime)
 library(car)
+library(kableExtra)
 ```
 
 ``` {r importing the data,echo = FALSE}
