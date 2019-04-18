@@ -11,18 +11,61 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
 library(ggplot2)
+library(readr)
 library(GGally)
+library(broom)
+library(jtools)
+library(anytime)
 ```
 
 ``` {r importing the data,echo = FALSE}
 # import the CSV
-loandata <- read.csv("LoanStats3a.csv")
-loan <- loandata
+loan <- read.csv("LoanStats3a.csv")
+#drop NAs
+loan <-loan[complete.cases(loan),]  
 ```
 
-```{r convert revolving utilization to numeric,echo = FALSE}
+```{r Data cleansing,echo = FALSE}
+
 #convert revolving util from string % to numeric decimal
 loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
+
+#convert term to numeric
+loan$term<- as.numeric(sub("months","",loan$term))
+
+#compute target dependent variable, total paid
+loan <- loan %>%
+  mutate(tot_paid = total_rec_prncp + total_rec_int)
+
+# there are 15 purpose categories, -> factor 
+loan$purpose <- factor(loan$purpose)
+
+#convert character strings from form like '10-Dec' to form like '2010-dec'
+# strings to be used with anytime function
+loan$issue_d <- sub("11","2011",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("10","2010",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("9","2009",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("8","2008",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("7","2007",loan$issue_d,fixed = TRUE)
+
+#convert issue_d from factor to to date-time 
+loan$issue_d <-anytime(loan$issue_d)
+
+# convert from '7-Dec' to '2007-Dec' for use with anytime()
+loan$last_pymnt_d <- sub("16","2016",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("15","2015",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("14","2014",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("13","2013",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("12","2012",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("11","2011",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("10","2010",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("9","2009", loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("8","2008",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("7","2007",loan$last_pymnt_d ,fixed = TRUE)
+
+#convert issue_d from factor to date-time 
+loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
+
 ```
 
 ```{r target variable,echo = FALSE}
@@ -31,31 +74,15 @@ loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 ```
 
-```{r drop all nas, echo = false}
-#drop NAs
-loan <-loan[complete.cases(loandata),]  
-```
-
-```{r factor term, echo = FALSE}
-#factor loan_term; 2 levels (3,5 years)
-loan$term <- factor(loan$term)
-```
-
-```{r factor purpose, echo = FALSE}
-# there are 15 purpose categories, -> factor 
-loan$purpose <- factor(loan$purpose)
-```
 
 ### **Abstract**
 Abstract text
 
 ### **Introduction**
-Introduction text
-the context, what we set out to research or discover.  what is the application or intended use
 
-model could be used to churn through existing loan portfolio and estimate what value is remaining.
+  In researching this loan data set, our our intent is to better understand, and eventually model, the outcome of a loan.  More specifically, we wish to develop an understanding of those factors affect the overall performance or outcome of a LendingClub loan.  We expect a number of interesting business questions can be explored through our analysis, both boroad and narrow in scope.  We will explore loan outcomes as a component of estimating the total value of a loan portfolio.  More narrowly, we also wish to understand those factors that may have the most influence on the overall performance of a given loan.
 
-how would introducing a different length lona term affect overall payout?
+
 
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
@@ -72,7 +99,7 @@ loan <- loan[-c(2000),]
 ### **Exploratory analysis**
 Exploratory text
 
-##### **Distributions**
+##### **Variable Analysis**
 
 ```{r  paid dist, echo=FALSE}
 # distribution of Total paid
@@ -116,7 +143,7 @@ ggplot(loan,aes(purpose))+
   coord_flip()
 ```
 
-##### **Categorical Variables**
+##### **Categorical Variable Analysis**
 
 ```{r repaid by purpose, echo = FALSE}
 # boxplot of total repaid by purpose, with coordinates flipped
@@ -126,16 +153,6 @@ ggplot(loan, aes(purpose, tot_paid))+
   ggtitle("Total Paid by Purpose")+
   xlab("Purpose")+
   ylab("Total Paid")
-```
-
-```{r repaid by term, echo = FALSE}
-# boxplot of loanterm  vs. total paid
-ggplot(loan,aes(term,tot_paid)) +
-  geom_boxplot()+
-  ggtitle("Total Paid by Loan Term")+
-  xlab("Loan Term")+
-  ylab("Total Paid")
-
 ```
 
 ```{r loan amount by purpose, echo = FALSE}
@@ -148,8 +165,19 @@ ggplot(loan,aes(purpose,loan_amnt))+
   ylab("Loan Amount")
 ```
 
+```{r total paid by purpose, echo = FALSE}
+ggplot(loan,aes(grade,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Purpose")+
+  xlab("Loan Grade")+
+  ylab("Total Paid")
+```
+
 ##### **Correlation Analysis**
-```{r pairwise plot, echo = FALSE}
+
+**PAIRWISE PLOT IS DISABLED FOR EASIER KNITTING**
+{r pairwise plot, echo = FALSE}
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
    select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
