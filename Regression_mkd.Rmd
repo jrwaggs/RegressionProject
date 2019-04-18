@@ -55,6 +55,8 @@ the context, what we set out to research or discover.  what is the application o
 
 model could be used to churn through existing loan portfolio and estimate what value is remaining.
 
+how would introducing a different length lona term affect overall payout?
+
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
 
@@ -159,7 +161,8 @@ ggpairs(numeric_loan)
 ### **Model Identification and Evaluation** 
 Model Identification text
 ```{r the model, echo = FALSE}
-testmodel3 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+home_ownership+
+testmodel3 <- lm(tot_paid~loan_amnt+term+int_rate+installment+grade+emp_length+
+                  home_ownership+
                    annual_inc+issue_d+loan_status+purpose+addr_state+
                    inq_last_6mths+mths_since_last_delinq+
                    mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
