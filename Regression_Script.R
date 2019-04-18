@@ -30,18 +30,18 @@ summary(loan$purpose)
 
 
 
-#convert character dates (factors) to  approporiate
-# strings to be fed into anytime function
+#convert character strings from form like '10-Dec' to form like '2010-dec'
+# strings to be used with anytime function
 loan$issue_d <- sub("11","2011",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("10","2010",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("9","2009",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("8","2008",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("7","2007",loan$issue_d,fixed = TRUE)
 
-#convert issue_d variable to date-time 
+#convert issue_d from factor to to date-time 
 loan$issue_d <-anytime(loan$issue_d)
 
-# convert strings in last payment date to for use with anytime()
+# convert from '7-Dec' to '2007-Dec' for use with anytime()
 loan$last_pymnt_d <- sub("16","2016",loan$last_pymnt_d ,fixed = TRUE)
 loan$last_pymnt_d <- sub("15","2015",loan$last_pymnt_d ,fixed = TRUE)
 loan$last_pymnt_d <- sub("14","2014",loan$last_pymnt_d ,fixed = TRUE)
@@ -53,15 +53,16 @@ loan$last_pymnt_d  <- sub("9","2009", loan$last_pymnt_d ,fixed = TRUE)
 loan$last_pymnt_d  <- sub("8","2008",loan$last_pymnt_d ,fixed = TRUE)
 loan$last_pymnt_d  <- sub("7","2007",loan$last_pymnt_d ,fixed = TRUE)
 
-#convert issue_d variable to date-time 
+#convert issue_d from factor to date-time 
 loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 
-# randomly pull one record from the dataframe
+#  pull three records from the dataframe, 
+#   plus a fourth with a high loan amount
 
 #copy row @ index 2000 to new DF
-test_case <- loan[c(2000,100,467,221),]
+test_case <- loan[c(13,1000,"156",228),]
 #delete row @ 2000 from original DF
-loan <- loan[-c(2000,100,467,221),]
+loan <- loan[-c(13,1000,"156",228),]
 
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
@@ -106,7 +107,7 @@ ggplot(loan,aes(purpose))+
 numeric_loan <- loan %>%
   select(int_rate,installment,annual_inc,inq_last_6mths,
          mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
-         revol_util,tot_paid  )
+         revol_util,recoveries,tot_paid  )
 
 #pairwise plots of numeric values  
 ggpairs(numeric_loan)
@@ -221,19 +222,19 @@ testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_owners
                    annual_inc+issue_d+loan_status+purpose+
                    inq_last_6mths+mths_since_last_delinq+
                    mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
-                   last_pymnt_d+last_pymnt_amnt
+                   last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
 summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
-
+                        # added in recoveries, r2 = .8752
 
 
 #-----------------------Model Application-----------------
 #apply model to test case
-predict(testmodel4,test_case,interval = "predict")
+predict(testmodel6,test_case,interval = "predict")
 
 
-#---------------------------Residuals ?
+#---------------------------Residuals & Analysis
 #augment model summary to df
 modeldf <- augment(testmodel5)
 
