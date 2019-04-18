@@ -26,7 +26,6 @@ loan <- loan %>%
 
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
-summary(loan$purpose)
 
 
 
@@ -122,13 +121,6 @@ ggplot(loan, aes(purpose, tot_paid))+
   xlab("Purpose")+
   ylab("Total Paid")
 
-# boxplot of loanterm  vs. total paid
-ggplot(loan,aes(term,tot_paid)) +
-  geom_boxplot()+
-  ggtitle("Total Paid by Loan Term")+
-  xlab("Loan Term")+
-  ylab("Total Paid")
-
 # boxplot of loan amount by purpose
 ggplot(loan,aes(purpose,loan_amnt))+
   geom_boxplot()+
@@ -136,6 +128,13 @@ ggplot(loan,aes(purpose,loan_amnt))+
   ggtitle("Loan Amount by Purpose")+
   xlab("Purpose")+
   ylab("Loan Amount")
+
+ggplot(loan,aes(grade,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Purpose")+
+  xlab("Loan Grade")+
+  ylab("Total Paid")
 
 # ---------- OTHER PLOTS
 # DTI vs. pct_paid
@@ -225,7 +224,7 @@ testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_owners
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
-summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
+summ(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
                         # added in recoveries, r2 = .8752
 
 
