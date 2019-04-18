@@ -16,6 +16,7 @@ library(GGally)
 library(broom)
 library(jtools)
 library(anytime)
+library(car)
 ```
 
 ``` {r importing the data,echo = FALSE}
@@ -186,8 +187,9 @@ numeric_loan <- loan %>%
 ```
 
 ### **Model Identification and Evaluation** 
-Our final OLS model was developed over 6 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five additional iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d, and delinq_2yrs.  loan_amnt was dropped due to its colinearity with the installment variable.  And, finally, we removed the state independent variable as its influence on total paid was minimal and the regression model could be made much simpler by removing a 51-group factor variable.  
+Our final OLS model was developed over 6 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five additional iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d, and delinq_2yrs.  loan_amnt was dropped due to its colinearity with the installment variable.  And, finally, we removed the state independent variable as its influence on total paid was minimal and the regression model could be made much simpler by removing a 51-group factor variable. 
 
+Our final model summary:
 
 ```{r the model, echo = FALSE}
 testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+
@@ -197,8 +199,24 @@ testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+
                    mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
-summ(testmodel6) # adjusted r2 of 88.25
+summ(testmodel6) # adjusted R2 of 87.52
 
+```
+
+A plot residuals to fitted values revelead that we may not have constant variance in our residuals:
+
+```{r residual plot, echo = FALSE}
+#plot residiuals
+modeldf <- augment(testmodel6)
+ggplot(modeldf,aes(.fitted,.resid))+
+  geom_point()+
+  #ylim(-15000,15000)+
+  geom_line( y = 0, linetype = 2, color = "darkred")
+```
+
+Which a non-constant-variance test affirmed:
+```{r ncv test,echo = FALSE}
+ncvTest(testmodel6)
 ```
 
 ### **Model Application**
