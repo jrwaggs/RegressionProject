@@ -4,32 +4,42 @@ library(ggplot2)
 library(readr)
 library(GGally)
 library(broom)
+library(jtools)
+library(anytime)
 
+#---------------------------- Data import and Cleaning ------------------------
 # import the CSV
-loandata <- read.csv('LoanStats3a.csv')
-
-loan <- loandata
+loan <- read.csv('LoanStats3a.csv')
 
 #convert revolving util from string % to numeric decimal
 loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
+
+#convert term to numeric
+loan$term<- as.numeric(sub("months","",loan$term))
 
 #compute target dependent variable, total paid
 loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 
-#drop NAs
-loan <-loan[complete.cases(loandata),]  
-
-
-#factor loan term; 2 levels (3,5 years)
-loan$term <- factor(loan$term)
-
-unique(loan$purpose)
 
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
 
+#convert character dates to strings to be fed into anytime function
+loan$issue_d <- sub("11","2011",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("10","2010",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("9","2009",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("8","2008",loan$issue_d,fixed = TRUE)
+loan$issue_d <- sub("7","2007",loan$issue_d,fixed = TRUE)
+
+#convert character to date-time 
+loan$issue_d <-anytime(loan$issue_d)
+
+
+
+#drop NAs
+loan <-loan[complete.cases(loan),]  
 
 # randomly pull one record from the dataframe
 
@@ -180,6 +190,17 @@ testmodel4 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_owners
                  ,data=loan)
 summary(testmodel4) # adjusted r2 of 88.11
 
+#drop state, reduce factors/variables
+
+testmodel5 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
+                 ,data=loan)
+
+summary(testmodel5) #Adjusted r2 of 88.06
+
 
 #-----------------------Model Application-----------------
 #apply model to test case
@@ -188,25 +209,28 @@ predict(testmodel4,test_case,interval = "predict")
 
 #---------------------------Residuals ?
 #augment model summary to df
-modeldf <- augment(testmodel3)
+modeldf <- augment(testmodel5)
 
 #plot residiuals
 ggplot(modeldf,aes(.fitted,.resid))+
   geom_point()+
-  ylim(-15000,15000)+
+  #ylim(-15000,15000)+
   geom_line( y = 0, linetype = 2, color = "darkred")
   
   
 #test for non constant variance, 
   #very small P score, non constant variance is present
-ncvTest(testmodel3)
+ncvTest(testmodel5)
 
 #quantile plot
-qqPlot(testmodel3,pch=16)
+qqPlot(testmodel5,pch=16)
 
 #residual normality test
   #  Very small p value, residuals not normally distributed
-shapiro.test(testmodel3$residuals)
+shapiro.test(testmodel5$residuals)
 
 
-vif(testmodel3)
+vif(testmodel5)
+
+plot_summs(testmodel5)
+
