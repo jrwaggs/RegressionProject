@@ -11,6 +11,9 @@ library(anytime)
 # import the CSV
 loan <- read.csv('LoanStats3a.csv')
 
+#drop NAs
+loan <-loan[complete.cases(loan),]  
+
 #convert revolving util from string % to numeric decimal
 loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
 
@@ -21,25 +24,37 @@ loan$term<- as.numeric(sub("months","",loan$term))
 loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 
-
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
 summary(loan$purpose)
 
-#convert character dates to strings to be fed into anytime function
+
+
+#convert character dates (factors) to  approporiate
+# strings to be fed into anytime function
 loan$issue_d <- sub("11","2011",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("10","2010",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("9","2009",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("8","2008",loan$issue_d,fixed = TRUE)
 loan$issue_d <- sub("7","2007",loan$issue_d,fixed = TRUE)
 
-#convert character to date-time 
+#convert issue_d variable to date-time 
 loan$issue_d <-anytime(loan$issue_d)
 
+# convert strings in last payment date to for use with anytime()
+loan$last_pymnt_d <- sub("16","2016",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("15","2015",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("14","2014",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("13","2013",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("12","2012",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d <- sub("11","2011",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("10","2010",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("9","2009", loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("8","2008",loan$last_pymnt_d ,fixed = TRUE)
+loan$last_pymnt_d  <- sub("7","2007",loan$last_pymnt_d ,fixed = TRUE)
 
-
-#drop NAs
-loan <-loan[complete.cases(loan),]  
+#convert issue_d variable to date-time 
+loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 
 # randomly pull one record from the dataframe
 
@@ -199,7 +214,18 @@ testmodel5 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_owners
                    last_pymnt_d+last_pymnt_amnt+last_credit_pull_d
                  ,data=loan)
 
-summary(testmodel5) #Adjusted r2 of 88.06
+summary(testmodel5) 
+#Adjusted r2 of 87.26 after issue_d & last payment date change and remove state
+
+testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt
+                 ,data=loan)
+
+summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
+
 
 
 #-----------------------Model Application-----------------
