@@ -6,7 +6,9 @@ library(GGally)
 library(broom)
 library(jtools)
 library(anytime)
-
+library(car)
+library(kableExtra)
+library(EnvStats)
 #---------------------------- Data import and Cleaning ------------------------
 # import the CSV
 loan <- read.csv('LoanStats3a.csv')
@@ -59,9 +61,9 @@ loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 #   plus a fourth with a high loan amount
 
 #copy row @ index 2000 to new DF
-test_case <- loan[c(13,1000,"156",228),]
+test_case <- loan[c(13,1000,156,228),]
 #delete row @ 2000 from original DF
-loan <- loan[-c(13,1000,"156",228),]
+loan <- loan[-c(13,1000,156,228),]
 
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
@@ -70,7 +72,7 @@ mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
 
 #distribution of loan amounts
 ggplot(loan,aes(loan_amnt))+
-  geom_histogram(bins = 7)+
+  geom_histogram(bins = 20)+
   ggtitle("Distribution of Loan Amounts")+
   xlab("Loan amount")
 
@@ -132,7 +134,7 @@ ggplot(loan,aes(purpose,loan_amnt))+
 ggplot(loan,aes(grade,tot_paid))+
   geom_boxplot()+
   coord_flip()+
-  ggtitle("Total Paid by Purpose")+
+  ggtitle("Total Paid by loan grade")+
   xlab("Loan Grade")+
   ylab("Total Paid")
 
@@ -253,7 +255,7 @@ qqPlot(testmodel6,pch=16)
 
 #residual normality test
   #  Very small p value, residuals not normally distributed
-shapiro.test(testmodel5$residuals)
+shapiro.test(testmodel6$residuals)
 
 
 vif(testmodel6)
@@ -269,18 +271,23 @@ ggplot(loan,aes(tot_paid))+
 ggplot(loan,aes(sqrt(tot_paid)))+
   geom_histogram()
 
+# ------------------------------  start of variable transformations -------------------------------
 
-testmodel7 <- lm(sqrt(tot_paid)~term+int_rate+installment+grade+emp_length+home_ownership+
+
+#BOXCOX TEST
+
+box <- boxcox(testmodel6)
+# boxcox test says lambda of somewhere between 0 and .5 may work for tot_paid
+
+testmodel7 <- lm((tot_paid^(1/3))~term+int_rate+installment+grade+emp_length+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
                    inq_last_6mths+mths_since_last_delinq+
                    mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
-summary(testmodel7)  #adjusted r2 of 87.31 after dropping last credit pulled
-# added in recoveries, r2 = .8752
+summary(testmodel7)
 
-#BOXCOX TEST
 
 modeldf1 <- augment(testmodel7)
 
@@ -289,4 +296,82 @@ ggplot(modeldf1,aes(.fitted,.resid))+
   geom_point()+
   #ylim(-15000,15000)+
   geom_line( y = 0, linetype = 2, color = "darkred")
-ncvTest(testmodel7)
+
+ncvTest(testmodel7) # p value of .726, non-constant variance is not an issue
+
+shapiro.test(testmodel7$residuals)
+
+
+
+#log transform  int rate, annual inc,
+testmodel8 <- lm((tot_paid^(1/3))~term+log(int_rate)+sqrt(installment)+grade+emp_length+home_ownership+
+                   log(annual_inc)+issue_d+loan_status+purpose+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+recoveries
+                 ,data=loan)
+
+summary(testmodel8) #p = .8741, slight improvement
+ncvTest(testmodel8) #improved
+shapiro.test(testmodel8$residuals) # did not noticeably improve
+
+
+summary(powerTransform(loan$int_rate)) #Est Power .3657
+
+summary(powerTransform(loan$installment))#Est Power .2797
+
+summary(powerTransform(loan$annual_inc))#Est Power .076
+
+summary(powerTransform(loan$inq_last_6mths, family = "bcnPower"))#Est Power .128
+
+summary(powerTransform(loan$mths_since_last_delinq, family = "bcnPower"))#Est Power .1972
+ 
+summary(powerTransform(loan$mths_since_last_record, family = "bcnPower"))#Est Power -.0688
+
+summary(powerTransform(loan$open_acc, family = "bcnPower"))#Est Power .3411
+
+summary(powerTransform(loan$pub_rec, family = "bcnPower"))#Est Power -3 ???
+
+summary(powerTransform(loan$revol_bal, family = "bcnPower"))#Est Power .239
+
+summary(powerTransform(loan$revol_util, family = "bcnPower"))#Est Power .644
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ggplot(loan, aes(log(annual_inc)))+
+  geom_histogram(bins = 30)
+ggplot(loan, aes(log(int_rate)))+
+  geom_histogram(bins = 30)
+
+ggplot(loan, aes((installment)))+
+  geom_histogram(bins = 30)
+ggplot(loan, aes(sqrt(installment)))+
+  geom_histogram(bins = 30)
+
+#no good transformation found yet
+ggplot(loan, aes(inq_last_6mths))+
+  geom_histogram(bins = 30)
+ggplot(loan, aes(1/(inq_last_6mths)))+
+  geom_histogram(bins = 30) 
+
+ggplot(loan, aes(mths_since_last_delinq))+
+  geom_histogram(bins = 30)
+ggplot(loan, aes((mths_since_last_delinq^(1/3))))+
+  geom_histogram(bins = 30)
