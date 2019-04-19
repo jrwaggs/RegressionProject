@@ -224,7 +224,7 @@ testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_owners
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
-summ(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
+summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
                         # added in recoveries, r2 = .8752
 
 
@@ -246,17 +246,47 @@ ggplot(modeldf,aes(.fitted,.resid))+
   
 #test for non constant variance, 
   #very small P score, non constant variance is present
-ncvTest(testmodel5)
+ncvTest(testmodel6)
 
 #quantile plot
-qqPlot(testmodel5,pch=16)
+qqPlot(testmodel6,pch=16)
 
 #residual normality test
   #  Very small p value, residuals not normally distributed
 shapiro.test(testmodel5$residuals)
 
 
-vif(testmodel5)
+vif(testmodel6)
 
-plot_summs(testmodel5)
+plot_summs(testmodel6)
 
+outlierTest(testmodel6)
+
+
+ggplot(loan,aes(tot_paid))+
+  geom_histogram()
+
+ggplot(loan,aes(sqrt(tot_paid)))+
+  geom_histogram()
+
+
+testmodel7 <- lm(sqrt(tot_paid)~term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+recoveries
+                 ,data=loan)
+
+summary(testmodel7)  #adjusted r2 of 87.31 after dropping last credit pulled
+# added in recoveries, r2 = .8752
+
+#BOXCOX TEST
+
+modeldf1 <- augment(testmodel7)
+
+#plot residiuals
+ggplot(modeldf1,aes(.fitted,.resid))+
+  geom_point()+
+  #ylim(-15000,15000)+
+  geom_line( y = 0, linetype = 2, color = "darkred")
+ncvTest(testmodel7)

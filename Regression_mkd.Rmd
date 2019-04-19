@@ -188,7 +188,7 @@ numeric_loan <- loan %>%
 ```
 
 ### **Model Identification and Evaluation** 
-Our final OLS model was developed over 6 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five additional iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d, and delinq_2yrs.  loan_amnt was dropped due to its colinearity with the installment variable.  And, finally, we removed the state independent variable as its influence on total paid was minimal and the regression model could be made much simpler by removing a 51-group factor variable. 
+Our final OLS model was developed over 6 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five additional iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d, and delinq_2yrs.  loan_amnt was dropped due to its multicolinearity with the installment variable.  And, finally, we removed the state independent variable as its influence on total paid was minimal and the regression model could be made simpler by removing a 49-level factor variable. 
 
 Our final model summary:
 
