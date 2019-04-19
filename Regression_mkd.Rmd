@@ -254,7 +254,7 @@ testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+emp_length+home_owner
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loantrans)
 
-summary(testmodel10) # adjusted R^2 of .9258
+summ(testmodel10) # adjusted R^2 of .9258
 
 modeldf1 <- augment(testmodel10)
 
