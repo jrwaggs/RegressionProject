@@ -230,9 +230,6 @@ summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
                         # added in recoveries, r2 = .8752
 
 
-#-----------------------Model Application-----------------
-#apply model to test case
-predict(testmodel6,test_case,interval = "predict")
 
 
 #---------------------------Residuals & Analysis
@@ -351,17 +348,17 @@ loantrans$open_acc <- loantrans$open_acc^(.3411)
 loantrans$revol_bal <- loantrans$revol_bal^(.239)
 loantrans$revol_util <- loantrans$revol_util^(.644)
 
-
-testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_ownership+
+#drop grade
+testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+emp_length+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
-                   inq_last_6mths+mths_since_last_delinq+
-                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   inq_last_6mths+open_acc+revol_bal+revol_util+
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loantrans)
 
-summary(testmodel10) # adjusted R^2 of .9257
+summary(testmodel10) # adjusted R^2 of .9258
 ncvTest(testmodel10) #fail
 shapiro.test(testmodel10$residuals) # fail
+vif(testmodel10)
 
 
 box2 <- boxcox(testmodel10)
@@ -386,6 +383,10 @@ boxTidwell(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_owners
   last_pymnt_d+last_pymnt_amnt+recoveries
 ,data=loan)
 
+#-----------------------Model Application-----------------
+#apply model to test case
+predictions<- predict(testmodel10,test_case,interval = "predict")
+predictions*3
 
 
 
