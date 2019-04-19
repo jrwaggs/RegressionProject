@@ -286,7 +286,7 @@ testmodel7 <- lm((tot_paid^(1/3))~term+int_rate+installment+grade+emp_length+hom
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
-summary(testmodel7)
+summary(testmodel7) #p = .8722
 
 
 modeldf1 <- augment(testmodel7)
@@ -299,7 +299,7 @@ ggplot(modeldf1,aes(.fitted,.resid))+
 
 ncvTest(testmodel7) # p value of .726, non-constant variance is not an issue
 
-shapiro.test(testmodel7$residuals)
+shapiro.test(testmodel7$residuals) # fail
 
 
 
@@ -311,10 +311,11 @@ testmodel8 <- lm((tot_paid^(1/3))~term+log(int_rate)+sqrt(installment)+grade+emp
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loan)
 
-summary(testmodel8) #p = .8741, slight improvement
-ncvTest(testmodel8) #improved
+summary(testmodel8) #p = .9198, 
+ncvTest(testmodel8) #fail
 shapiro.test(testmodel8$residuals) # did not noticeably improve
 
+# ------------------------------------- Box-Cox of independent variables --------------------------------
 
 summary(powerTransform(loan$int_rate)) #Est Power .3657
 
@@ -338,40 +339,53 @@ summary(powerTransform(loan$revol_util, family = "bcnPower"))#Est Power .644
 
 
 
+loantrans <- loan
+loantrans$int_rate <- loantrans$int_rate^(.366)
+loantrans$installment <- loantrans$installment^(.2797)
+#loantrans$annual_inc <- loantrans$annual_inc^(.076)
+loantrans$inq_last_6mths <- loantrans$inq_last_6mths^(.128)
+loantrans$mths_since_last_delinq <- loantrans$mths_since_last_delinq^(.1972)
+#loantrans$mths_since_last_record <- 1/(loantrans$mths_since_last_record^(.0688))
+loantrans$open_acc <- loantrans$open_acc^(.3411)
+#loantrans$pub_rec <- 1/loantrans$pub_rec^(3)
+loantrans$revol_bal <- loantrans$revol_bal^(.239)
+loantrans$revol_util <- loantrans$revol_util^(.644)
+
+
+testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_ownership+
+                   annual_inc+issue_d+loan_status+purpose+
+                   inq_last_6mths+mths_since_last_delinq+
+                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d+last_pymnt_amnt+recoveries
+                 ,data=loantrans)
+
+summary(testmodel10) # adjusted R^2 of .9257
+ncvTest(testmodel10) #fail
+shapiro.test(testmodel10$residuals) # fail
+
+
+box2 <- boxcox(testmodel10)
+box2
+testmodel11 <- lm(sqrt(tot_paid)~term+int_rate+installment+grade+emp_length+home_ownership+
+                    annual_inc+issue_d+loan_status+purpose+
+                    inq_last_6mths+mths_since_last_delinq+
+                    mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+                    last_pymnt_d+last_pymnt_amnt+recoveries
+                  ,data=loantrans)
+
+summary(testmodel11) # adjusted R^2 of .9201
+ncvTest(testmodel11) #fail
+shapiro.test(testmodel10$residuals) # fail
+
+
+
+boxTidwell(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_ownership+
+  annual_inc+issue_d+loan_status+purpose+
+  inq_last_6mths+mths_since_last_delinq+
+  mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+  last_pymnt_d+last_pymnt_amnt+recoveries
+,data=loan)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-ggplot(loan, aes(log(annual_inc)))+
-  geom_histogram(bins = 30)
-ggplot(loan, aes(log(int_rate)))+
-  geom_histogram(bins = 30)
-
-ggplot(loan, aes((installment)))+
-  geom_histogram(bins = 30)
-ggplot(loan, aes(sqrt(installment)))+
-  geom_histogram(bins = 30)
-
-#no good transformation found yet
-ggplot(loan, aes(inq_last_6mths))+
-  geom_histogram(bins = 30)
-ggplot(loan, aes(1/(inq_last_6mths)))+
-  geom_histogram(bins = 30) 
-
-ggplot(loan, aes(mths_since_last_delinq))+
-  geom_histogram(bins = 30)
-ggplot(loan, aes((mths_since_last_delinq^(1/3))))+
-  geom_histogram(bins = 30)
