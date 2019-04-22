@@ -20,6 +20,7 @@ library(car)
 library(kableExtra)
 library(EnvStats)
 library(knitr)
+library(corrplot)
 ```
 
 ``` {r importing the data,echo = FALSE}
@@ -195,18 +196,23 @@ ggplot(loan,aes(verification_status,tot_paid))+
   xlab("Verification Status")+
   ylab("Total Paid")
 ```
-
+it 
 
 ##### **Correlation Analysis**
 
-**PAIRWISE PLOT IS DISABLED FOR EASIER KNITTING**
+**ggpairs PLOT IS DISABLED FOR EASIER KNITTING**
 ```{r pairwise plot, echo = FALSE}
-#subset of only numeric vaiables
 numeric_loan <- loan %>%
-   select(loan_amnt,int_rate,inq_last_6mths,annual_inc,installment,delinq_2yrs,tot_paid  )
+  select(int_rate,installment,annual_inc,inq_last_6mths,
+         mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
+         revol_util,recoveries,loan_amnt,tot_paid  )
 
-#pairwise plots of numeric values  
+#correlation plot
+corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
+
+#ggpairs for correlation numbers and distributions
 #ggpairs(numeric_loan)
+
 ```
 
 ### **Model Identification and Evaluation** 

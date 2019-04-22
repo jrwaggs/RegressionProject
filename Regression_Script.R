@@ -9,7 +9,7 @@ library(anytime)
 library(car)
 library(kableExtra)
 library(EnvStats)
-
+library(corrplot)
 #---------------------------- Data import and Cleaning ------------------------
 
 # import the CSV
@@ -108,9 +108,13 @@ ggplot(loan,aes(purpose))+
 numeric_loan <- loan %>%
   select(int_rate,installment,annual_inc,inq_last_6mths,
          mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
-         revol_util,recoveries,tot_paid  )
+         revol_util,recoveries,loan_amnt,tot_paid  )
 
-#pairwise plots of numeric values  
+
+#correlation plot
+corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
+
+#ggpairs for correlation numbers and distributions
 ggpairs(numeric_loan)
 
 # ---------RELATIONSHIPS BETWEEN CATEGORICAL VARIABLES AND TARGET VARIABLE
