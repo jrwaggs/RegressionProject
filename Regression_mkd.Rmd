@@ -307,8 +307,10 @@ colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% E
 
 ```
 
-```{r table,echo = F, results="asis"}
-pred_table
+```{r table,echo = F}
+
+kable(pred_table) %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"))
 ```
 
 For these observations, the model does not appear to make  approporiate predictions for total amounts paid.  Total paid actual for the second observation, '13', falls outside of the 95% prediction interval.  Three of the observations had errors in excess of 20%, which is not appropriate given the potential business consequences of utilizing such erroneous estimates.   
