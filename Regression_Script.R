@@ -9,12 +9,13 @@ library(anytime)
 library(car)
 library(kableExtra)
 library(EnvStats)
+
 #---------------------------- Data import and Cleaning ------------------------
 # import the CSV
 loan <- read.csv('LoanStats3a.csv')
 
-#drop NAs
-loan <-loan[complete.cases(loan),]  
+#drop rows with NA for now, revisit missing data later
+#loan <-loan[complete.cases(loan),]  
 
 #convert revolving util from string % to numeric decimal
 loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
@@ -61,9 +62,9 @@ loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 #   plus a fourth with a high loan amount
 
 #copy row @ index 2000 to new DF
-test_case <- loan[c(13,1000,156,228),]
+#test_case <- loan[c(13,1000,156,228),]
 #delete row @ 2000 from original DF
-loan <- loan[-c(13,1000,156,228),]
+#loan <- loan[-c(13,1000,156,228),]
 
 #------------------------------- data exploration -------------------------------------
 mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
@@ -232,7 +233,7 @@ summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
 
 
 
-#---------------------------Residuals & Analysis
+#---------------------------Residuals & Analysis ----------
 #augment model summary to df
 modeldf <- augment(testmodel5)
 
@@ -268,7 +269,7 @@ ggplot(loan,aes(tot_paid))+
 ggplot(loan,aes(sqrt(tot_paid)))+
   geom_histogram()
 
-# ------------------------------  start of variable transformations -------------------------------
+# ------------------  start of variable transformations -------------------------------
 
 
 #BOXCOX TEST
@@ -314,69 +315,81 @@ shapiro.test(testmodel8$residuals) # did not noticeably improve
 
 # ------------------------------------- Box-Cox of independent variables --------------------------------
 
-summary(powerTransform(loan$int_rate)) #Est Power .3657
+summary(powerTransform(loan$int_rate)) #Est Power .3657 new  .5678
 
-summary(powerTransform(loan$installment))#Est Power .2797
+summary(powerTransform(loan$installment))#Est Power .2797 new .2601
 
-summary(powerTransform(loan$annual_inc))#Est Power .076
+summary(powerTransform(loan$annual_inc))#Est Power .076 new -0.0388
 
-summary(powerTransform(loan$inq_last_6mths, family = "bcnPower"))#Est Power .128
+summary(powerTransform(loan$inq_last_6mths, family = "bcnPower"))#Est Power .128 new -0.0139
 
-summary(powerTransform(loan$mths_since_last_delinq, family = "bcnPower"))#Est Power .1972
+summary(powerTransform(loan$mths_since_last_delinq, family = "bcnPower"))#Est Power .1972 new 0.5837
  
-summary(powerTransform(loan$mths_since_last_record, family = "bcnPower"))#Est Power -.0688
+summary(powerTransform(loan$mths_since_last_record, family = "bcnPower"))#Est Power -.0688 new = 1.05
 
-summary(powerTransform(loan$open_acc, family = "bcnPower"))#Est Power .3411
+summary(powerTransform(loan$open_acc, family = "bcnPower"))#Est Power .3411  new .286
 
 summary(powerTransform(loan$pub_rec, family = "bcnPower"))#Est Power -3 ???
 
-summary(powerTransform(loan$revol_bal, family = "bcnPower"))#Est Power .239
+summary(powerTransform(loan$revol_bal, family = "bcnPower"))#Est Power .239 new .2773
 
-summary(powerTransform(loan$revol_util, family = "bcnPower"))#Est Power .644
+summary(powerTransform(loan$revol_util, family = "bcnPower"))#Est Power .644 new .3991
 
-
-
+# create new DF in which input will be transformed.
 loantrans <- loan
-loantrans$int_rate <- loantrans$int_rate^(.366)
-loantrans$installment <- loantrans$installment^(.2797)
+loantrans$int_rate <- loantrans$int_rate^(.5678)
+loantrans$installment <- loantrans$installment^(.2601)
 #loantrans$annual_inc <- loantrans$annual_inc^(.076)
-loantrans$inq_last_6mths <- loantrans$inq_last_6mths^(.128)
-loantrans$mths_since_last_delinq <- loantrans$mths_since_last_delinq^(.1972)
+#loantrans$inq_last_6mths <- log(loantrans$inq_last_6mths)
+loantrans$mths_since_last_delinq <- loantrans$mths_since_last_delinq^(.5837)
 #loantrans$mths_since_last_record <- 1/(loantrans$mths_since_last_record^(.0688))
-loantrans$open_acc <- loantrans$open_acc^(.3411)
+loantrans$open_acc <- loantrans$open_acc^(.286)
 #loantrans$pub_rec <- 1/loantrans$pub_rec^(3)
-loantrans$revol_bal <- loantrans$revol_bal^(.239)
-loantrans$revol_util <- loantrans$revol_util^(.644)
+loantrans$revol_bal <- loantrans$revol_bal^(.2773)
+loantrans$revol_util <- loantrans$revol_util^(.3991)
+loantrans$tot_paid <-loantrans$tot_paid^(.333333)
 
-#drop grade
-testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+emp_length+home_ownership+
+
+#copy row @ index 2000 to new DF
+test_case <- loantrans[c(13,1000,156,228),]
+#delete row @ 2000 from original DF
+loantrans <- loantrans[-c(13,1000,156,228),]
+
+
+#drop grade, emplength
+
+testmodel10 <- lm(tot_paid~term+int_rate+installment+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
                    inq_last_6mths+open_acc+revol_bal+revol_util+
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loantrans)
 
-summary(testmodel10) # adjusted R^2 of .9258
+summary(testmodel10) # adjusted R^2 of .942
 ncvTest(testmodel10) #fail
-shapiro.test(testmodel10$residuals) # fail
+
+#shapiro test with 5000 random samples
+shapiro.test(sample(testmodel10$residuals,5000)) # fail
 vif(testmodel10)
 
+plot_summs(testmodel10, scale = TRUE, plot.distributions = TRUE,
+           rescale.distributions = T,inner_ci_level = .95)
 
 box2 <- boxcox(testmodel10)
 box2
-testmodel11 <- lm(sqrt(tot_paid)~term+int_rate+installment+grade+emp_length+home_ownership+
+testmodel11 <- lm(tot_paid^1.75~term+int_rate+installment+grade+emp_length+home_ownership+
                     annual_inc+issue_d+loan_status+purpose+
                     inq_last_6mths+mths_since_last_delinq+
                     mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
                     last_pymnt_d+last_pymnt_amnt+recoveries
                   ,data=loantrans)
 
-summary(testmodel11) # adjusted R^2 of .9201
-ncvTest(testmodel11) #fail
+summary(testmodel11) # adjusted R^2 of .9127
+ncvTest(testmodel11) #pass
 shapiro.test(testmodel10$residuals) # fail
 
 
 
-boxTidwell(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_ownership+
+boxTidwell(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
   annual_inc+issue_d+loan_status+purpose+
   inq_last_6mths+mths_since_last_delinq+
   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
@@ -384,9 +397,11 @@ boxTidwell(tot_paid^(1/3)~term+int_rate+installment+grade+emp_length+home_owners
 ,data=loan)
 
 #-----------------------Model Application-----------------
+
 #apply model to test case
-predictions<- predict(testmodel10,test_case,interval = "predict")
-predictions*3
+predictions<- predict(testmodel10,test_case,interval = "predict")^3
 
-
-
+combo <- test_case %>%
+  select("loan_amnt")
+combo <- merge(combo,predictions,by = 0, all = T)
+colnames(combo) <- c("","Loan Amount","Predicted","Lower PI","Upper PI")
