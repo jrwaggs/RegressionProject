@@ -247,12 +247,17 @@ loantrans$open_acc <- loantrans$open_acc^(.286)
 #loantrans$pub_rec <- 1/loantrans$pub_rec^(3)
 loantrans$revol_bal <- loantrans$revol_bal^(.2773)
 loantrans$revol_util <- loantrans$revol_util^(.3991)
-loantrans$tot_paid <-loantrans$tot_paid^(.333333) # target outcome
+loantrans$tot_paid <-loantrans$tot_paid^(.333333) # target outcome 
 
-#copy row @ index 2000 to new DF
+#copy rows to new DF
 test_case <- loantrans[c(13,1000,156,228),]
-#delete row @ 2000 from original DF
+
+#undo tot_paid transformation for predictions later on
+test_case$tot_paid <- test_case$tot_paid^3
+
+#delete rows from original DF
 loantrans <- loantrans[-c(13,1000,156,228),]
+
 
 ```
 
@@ -282,26 +287,31 @@ shapiro.test(sample(testmodel10$residuals,5000)) # fail
 ```
 
 
-
-
 ### **Model Application**
 Applying the model to the four holdout cases produces the following estimates:
 ```{r predict for holdout case,echo = FALSE}
 #apply model to test cases
+
+
 predictions<- predict(testmodel10,test_case,interval = "predict")^3
 
 combo <- test_case %>%
-  select("loan_amnt")
-combo <- merge(combo,predictions,by = 0, all = T)
-colnames(combo) <- c("","Loan amt","Predicted","Lower PI","Upper PI")
+  select(tot_paid) 
+
+pred_table <- merge(combo,predictions,by = 0, all = T)
+
+pred_table <- pred_table%>%
+  mutate("% Error" = (abs(tot_paid-fit)/tot_paid)*100)
+
+colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% Error")
+
 ```
 
 ```{r table,echo = F, results="asis"}
-kable(combo[1:4,], caption = "Estimates, actuals for test records")
+pred_table
 ```
 
-COMMENTS ON RESULTS
-https://www.statmethods.net/stats/regression.html
+For these observations, the model does not appear to make  approporiate predictions for total amounts paid.  Total paid actual for the second observation, '13', falls outside of the 95% prediction interval.  Three of the observations had errors in excess of 20%, which is not appropriate given the potential business consequences of utilizing such erroneous estimates.   
 
 ### **Assumptions and Limitations**
 Assumption/Limitation text
