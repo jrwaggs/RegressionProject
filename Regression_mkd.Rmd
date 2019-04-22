@@ -196,7 +196,7 @@ ggplot(loan,aes(verification_status,tot_paid))+
   xlab("Verification Status")+
   ylab("Total Paid")
 ```
-it 
+
 
 ##### **Correlation Analysis**
 
