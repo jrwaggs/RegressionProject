@@ -19,21 +19,23 @@ library(anytime)
 library(car)
 library(kableExtra)
 library(EnvStats)
+library(knitr)
 ```
 
 ``` {r importing the data,echo = FALSE}
 # import the CSV
 loan <- read.csv("LoanStats3a.csv")
-#drop NAs
-loan <-loan[complete.cases(loan),]  
+
+#drop rows with NA for now, revisit missing data later
+# loan <-loan[complete.cases(loan),]  
 ```
 
-```{r Data cleansing,echo = FALSE}
+```{r Data manipulation,echo = FALSE}
 
 #convert revolving util from string % to numeric decimal
 loan$revol_util<- as.numeric(sub("%","",loan$revol_util))/100
 
-#convert term to numeric
+#split term on "months", convert to numeric
 loan$term<- as.numeric(sub("months","",loan$term))
 
 #compute target dependent variable, total paid
@@ -94,9 +96,9 @@ Abstract text
 #   plus a fourth with a high loan amount
 
 #copy row @ index 2000 to new DF
-test_case <- loan[c(13,1000,156,228),]
+#test_case <- loan[c(13,1000,156,228),]
 #delete row @ 2000 from original DF
-loan <- loan[-c(13,1000,156,228),]
+#loan <- loan[-c(13,1000,156,228),]
 ```
   
 ### **Exploratory analysis**
@@ -227,34 +229,41 @@ testmodel7 <- lm((tot_paid^(1/3))~term+int_rate+installment+grade+emp_length+hom
 ncvTest(testmodel7) # p value of .726, non-constant variance is not an issue
 ```
 
-A simiar process was followed for the independent variables where Box-Cox suggested a transformation would be appropriate.  Though normalizing a number of independent variables improved the fit of our model to an R^2 of 92.5, we were unable to produce a model that could pass both residiual tests.  
+A simiar process was followed for the independent variables where Box-Cox suggested a transformation would be appropriate.  Though normalizing a number of independent variables improved the fit of our model to an R^2 of 94.2, we were unable to produce a model that could pass both residiual tests.  
 
 Summary of the final Model:
 ```{r transform input variables, echo = F}
 
 #transform input variables based on estimated power output of boxcox tests
-
+  # create new DF in which inputs will be transformed.
 loantrans <- loan
-loantrans$int_rate <- loantrans$int_rate^(.366)
-loantrans$installment <- loantrans$installment^(.2797)
+loantrans$int_rate <- loantrans$int_rate^(.5678)
+loantrans$installment <- loantrans$installment^(.2601)
 #loantrans$annual_inc <- loantrans$annual_inc^(.076)
-loantrans$inq_last_6mths <- loantrans$inq_last_6mths^(.128)
-loantrans$mths_since_last_delinq <- loantrans$mths_since_last_delinq^(.1972)
+#loantrans$inq_last_6mths <- log(loantrans$inq_last_6mths)
+loantrans$mths_since_last_delinq <- loantrans$mths_since_last_delinq^(.5837)
 #loantrans$mths_since_last_record <- 1/(loantrans$mths_since_last_record^(.0688))
-loantrans$open_acc <- loantrans$open_acc^(.3411)
+loantrans$open_acc <- loantrans$open_acc^(.286)
 #loantrans$pub_rec <- 1/loantrans$pub_rec^(3)
-loantrans$revol_bal <- loantrans$revol_bal^(.239)
-loantrans$revol_util <- loantrans$revol_util^(.644)
+loantrans$revol_bal <- loantrans$revol_bal^(.2773)
+loantrans$revol_util <- loantrans$revol_util^(.3991)
+loantrans$tot_paid <-loantrans$tot_paid^(.333333) # target outcome
+
+#copy row @ index 2000 to new DF
+test_case <- loantrans[c(13,1000,156,228),]
+#delete row @ 2000 from original DF
+loantrans <- loantrans[-c(13,1000,156,228),]
+
 ```
 
 ```{r final model, echo = F}
-testmodel10 <- lm(tot_paid^(1/3)~term+int_rate+installment+emp_length+home_ownership+
+testmodel10 <- lm(tot_paid~term+int_rate+installment+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
                    inq_last_6mths+open_acc+revol_bal+revol_util+
                    last_pymnt_d+last_pymnt_amnt+recoveries
                  ,data=loantrans)
 
-summ(testmodel10) # adjusted R^2 of .9258
+summ(testmodel10) # adjusted R^2 of .942
 
 modeldf1 <- augment(testmodel10)
 
@@ -266,7 +275,10 @@ ggplot(modeldf1,aes(.fitted,.resid))+
 
 
 ncvTest(testmodel10) #fail
-shapiro.test(testmodel10$residuals) # fail
+
+#shapiro test with 5000 random samples, test needs 3 to 5000 samples
+
+shapiro.test(sample(testmodel10$residuals,5000)) # fail
 ```
 
 
@@ -275,8 +287,17 @@ shapiro.test(testmodel10$residuals) # fail
 ### **Model Application**
 Applying the model to the four holdout cases produces the following estimates:
 ```{r predict for holdout case,echo = FALSE}
-#apply model to test case
-predict(testmodel10,test_case, interval = "predict")
+#apply model to test cases
+predictions<- predict(testmodel10,test_case,interval = "predict")^3
+
+combo <- test_case %>%
+  select("loan_amnt")
+combo <- merge(combo,predictions,by = 0, all = T)
+colnames(combo) <- c("","Loan amt","Predicted","Lower PI","Upper PI")
+```
+
+```{r table,echo = F, results="asis"}
+kable(combo[1:4,], caption = "Estimates, actuals for test records")
 ```
 
 COMMENTS ON RESULTS
