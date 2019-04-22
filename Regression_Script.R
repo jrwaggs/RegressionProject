@@ -11,6 +11,7 @@ library(kableExtra)
 library(EnvStats)
 
 #---------------------------- Data import and Cleaning ------------------------
+
 # import the CSV
 loan <- read.csv('LoanStats3a.csv')
 
@@ -29,8 +30,6 @@ loan <- loan %>%
 
 # there are 15 purpose categories, -> factor 
 loan$purpose <- factor(loan$purpose)
-
-
 
 #convert character strings from form like '10-Dec' to form like '2010-dec'
 # strings to be used with anytime function
@@ -352,6 +351,7 @@ loantrans$tot_paid <-loantrans$tot_paid^(.333333)
 
 #copy row @ index 2000 to new DF
 test_case <- loantrans[c(13,1000,156,228),]
+test_case$tot_paid <- test_case$tot_paid^3
 #delete row @ 2000 from original DF
 loantrans <- loantrans[-c(13,1000,156,228),]
 
@@ -373,6 +373,10 @@ vif(testmodel10)
 
 plot_summs(testmodel10, scale = TRUE, plot.distributions = TRUE,
            rescale.distributions = T,inner_ci_level = .95)
+
+#https://www.statmethods.net/stats/regression.html
+anova(testmodel10)
+
 
 box2 <- boxcox(testmodel10)
 box2
@@ -396,12 +400,21 @@ boxTidwell(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
   last_pymnt_d+last_pymnt_amnt+recoveries
 ,data=loan)
 
+
+
 #-----------------------Model Application-----------------
 
 #apply model to test case
 predictions<- predict(testmodel10,test_case,interval = "predict")^3
 
 combo <- test_case %>%
-  select("loan_amnt")
-combo <- merge(combo,predictions,by = 0, all = T)
-colnames(combo) <- c("","Loan Amount","Predicted","Lower PI","Upper PI")
+  select(tot_paid) 
+
+pred_table <- merge(combo,predictions,by = 0, all = T)
+
+pred_table <- pred_table%>%
+  mutate("% Error" = (abs(tot_paid-fit)/tot_paid)*100)
+
+colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% Error")
+
+
