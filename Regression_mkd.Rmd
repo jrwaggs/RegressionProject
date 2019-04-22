@@ -178,6 +178,25 @@ ggplot(loan,aes(grade,tot_paid))+
   ylab("Total Paid")
 ```
 
+```{r tota paid by home ownership, echo = FALSE}
+ggplot(loan,aes(home_ownership,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Home Ownership")+
+  xlab("Home Ownership")+
+  ylab("Total Paid")
+```
+
+```{r total paid by verification status, echo = FALSE}
+ggplot(loan,aes(verification_status,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Verification Status")+
+  xlab("Verification Status")+
+  ylab("Total Paid")
+```
+
+
 ##### **Correlation Analysis**
 
 **PAIRWISE PLOT IS DISABLED FOR EASIER KNITTING**

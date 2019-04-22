@@ -138,6 +138,21 @@ ggplot(loan,aes(grade,tot_paid))+
   xlab("Loan Grade")+
   ylab("Total Paid")
 
+ggplot(loan,aes(home_ownership,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Home Ownership")+
+  xlab("Home Ownership")+
+  ylab("Total Paid")
+
+ggplot(loan,aes(verification_status,tot_paid))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Verification Status")+
+  xlab("Verification Status")+
+  ylab("Total Paid")
+  
+  
 # ---------- OTHER PLOTS
 # DTI vs. pct_paid
 ggplot(loan, aes(dti, pct_paid))+
@@ -361,7 +376,7 @@ loantrans <- loantrans[-c(13,1000,156,228),]
 testmodel10 <- lm(tot_paid~term+int_rate+installment+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
                    inq_last_6mths+open_acc+revol_bal+revol_util+
-                   last_pymnt_d+last_pymnt_amnt+recoveries
+                   last_pymnt_d+last_pymnt_amnt+recoveries+verification_status
                  ,data=loantrans)
 
 summary(testmodel10) # adjusted R^2 of .942
@@ -416,5 +431,6 @@ pred_table <- pred_table%>%
   mutate("% Error" = (abs(tot_paid-fit)/tot_paid)*100)
 
 colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% Error")
+
 
 
