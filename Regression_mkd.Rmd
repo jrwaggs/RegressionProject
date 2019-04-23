@@ -148,6 +148,14 @@ ggplot(loan,aes(purpose))+
   coord_flip()
 ```
 
+```{r loans by date, echo = F}
+ggplot(loan,aes(issue_d))+
+  geom_histogram(bins = 48)+
+  ggtitle("Count of Monthly Loan Issues")+
+  xlab("Issue Date")+
+  ylab("Count")
+```
+
 ##### **Categorical Variable Analysis**
 
 ```{r repaid by purpose, echo = FALSE}
@@ -343,4 +351,5 @@ For these observations, the model does not appear to make  approporiate predicti
 ### **Assumptions and Limitations**
 Assumption/Limitation text
 
-
+Limitations - 
+greater economic factors and how they influence both the need for a loan, and what interest rates are charged.  

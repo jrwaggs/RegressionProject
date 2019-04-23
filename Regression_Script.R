@@ -66,7 +66,7 @@ loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 #loan <- loan[-c(13,1000,156,228),]
 
 #------------------------------- data exploration -------------------------------------
-mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
+
 
 # ---------- DISTRIBUTIONS
 
@@ -101,6 +101,12 @@ ggplot(loan,aes(purpose))+
   ggtitle("Count of Loans by purpose")+
   xlab("Purpose")+
   coord_flip()
+
+ggplot(loan,aes(issue_d))+
+  geom_histogram(bins = 48)+
+  ggtitle("Count of Monthly Loan Issues")+
+  xlab("Issue Date")+
+  ylab("Count")
 
 #----------CORRELATION ANALYSIS OF NUMERIC VARIABLES 
 
