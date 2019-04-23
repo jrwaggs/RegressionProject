@@ -92,6 +92,31 @@ Abstract text
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
 
+##### **Description of Variables**
+  * annual_inc (numeric): The self-reported annual income provided by the borrower during registration  
+  * emp_length (factor): Employment length in years
+  * grade (factor): Lending Club's assigned loan grade
+  * home_ownership (factor): The home ownership status provided by the borrower during registration
+  * inq_last_6mths (factor): The number of inquiries in past 6 months excluding auto and mortgage inquiries  
+  * installment (numeric): The monthly payment owed by the borrower if the loan originates  
+  * int_rate (numeric): Interest Rate on the loan
+  * issue_d (date): The month which the loan was funded
+  * last_pymnt_amnt (numeric): Last total payment amount received
+  * last_pymnt_d (date): Last month payment was received  
+  * loan_amnt (numeric): The listed amount of the loan applied for by the borrower. If at some point in time, the credit           department reduces the loan amount, then it will be reflected in this value  
+  * loan_status (factor): Current status of the loan  
+  * mths_since_last_delinq (numeric): The number of months since the borrower's last delinquency
+  * mths_since_last_record (numeric): The number of months since the last public record
+  * open_acc (numeric): The number of open credit lines in the borrower's credit file
+  * pub_rec (numeric): The number of derogatory public records
+  * purpose (factor): A category provided by the borrower for the loan request
+  * recoveries (numeric): post charge off gross recovery
+  * revol_bal (numeric): Total credit revolving balance
+  * revol_util (numeric): Revolving line utilization rate, or the amount of credit the borrower is using relative to all           available revolving credit
+  * term (factor): The number of payments on the loan
+  * tot_paid (numeric): The sum of total principal and total interest, excluding any collection amounts or fees received
+  * verification_status (factor): Indicates if the borrowers' income was verified by LC, not verified, or if the income           source was verified
+
 ```{r exclude records, echo = FALSE}
 #  pull three records from the dataframe, 
 #   plus a fourth with a high loan amount
