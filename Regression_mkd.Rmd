@@ -80,14 +80,12 @@ loan <- loan %>%
   mutate(tot_paid = total_rec_prncp + total_rec_int)
 ```
 
-
 ### **Abstract**
 Abstract text
 
 ### **Introduction**
 
-  In researching this loan data set, our our intent is to better understand, and eventually model, the outcome of a loan.  More specifically, we wish to develop an understanding of those factors affect the overall performance or outcome of a LendingClub loan.  We expect a number of interesting business questions can be explored through our analysis, both boroad and narrow in scope.  We will explore loan outcomes as a component of estimating the total value of a loan portfolio.  More narrowly, we also wish to understand those factors that may have the most influence on the overall performance of a given loan.
-
+  In researching this loan data set, our intent is to better understand, and eventually model, the outcome of a loan.  More specifically, we wish to develop an understanding of those factors affect the overall performance or outcome of a LendingClub loan.  We expect a number of interesting business questions can be explored through our analysis, both boroad and narrow in scope.  We will explore loan outcomes as a component of estimating the total value of a loan portfolio.  More narrowly, we also wish to understand those factors that may have the most influence on the overall performance of a given loan.
 
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
@@ -97,7 +95,7 @@ Abstract text
   * emp_length (factor): Employment length in years
   * grade (factor): Lending Club's assigned loan grade
   * home_ownership (factor): The home ownership status provided by the borrower during registration
-  * inq_last_6mths (factor): The number of inquiries in past 6 months excluding auto and mortgage inquiries  
+  * inq_last_6mths (numeric): The number of inquiries in past 6 months excluding auto and mortgage inquiries  
   * installment (numeric): The monthly payment owed by the borrower if the loan originates  
   * int_rate (numeric): Interest Rate on the loan
   * issue_d (date): The month which the loan was funded
@@ -131,61 +129,91 @@ Abstract text
 
 ##### **Variable Analysis**
 
-```{r  paid dist, echo=FALSE}
-# distribution of Total paid
-ggplot(loan, aes(tot_paid))+
-  geom_histogram(bins = 30)+
-  ggtitle("Distribution of Total Paid")+
-  xlab("Total Paid")
+```{r  income dist, echo=FALSE}
+# distribution of annual incomes
+ggplot(loan,aes(annual_inc))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 20, color="black", fill="gray65")+
+  ggtitle(("Borrower Annual Income"))+
+  xlab("Annual Income")+
+  xlim(0,200000)+
+  ylab("Loan Count")
 ```
 
-```{r loan amt dist,echo=FALSE}
-#distribution of loan amounts
-ggplot(loan,aes(loan_amnt))+
-  geom_histogram(bins = 20)+
-  ggtitle("Distribution of Loan Amounts")+
-  xlab("Loan amount")
+```{r installment dist,echo=FALSE}
+# distribution of installment
+ggplot(loan,aes(installment))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=20, color="black", fill="gray65")+
+  ggtitle("Installment")+
+  xlab("Installment")+
+  ylab("Loan Count")
 ```
 
 ```{r int rate dist,echo=FALSE}
 # distribution of interest rates
 ggplot(loan,aes(int_rate))+
-  geom_histogram(bins=20)+
-  ggtitle("Distribution of Loan Interest Rates")+
-  xlab("Interest Rate")
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=20, color="black", fill="gray65")+
+  ggtitle("Loan Interest Rates")+
+  xlab("Interest Rate")+
+  ylab("Loan Count")
 ```
 
-```{r income dist,echo=FALSE}
-#distribution of of annual incomes
-ggplot(loan,aes(annual_inc))+
-  geom_histogram(bins = 20)+
-  ggtitle(("Distribution of Borrower Annual Income"))+
-  xlab("Annual Income")+
-  xlim(0,200000)
+```{r loan amt dist,echo=FALSE}
+# distribution of loan amounts 
+ggplot(loan,aes(loan_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 20, color="black", fill="gray65")+
+  ggtitle("Loan Amounts")+
+  xlab("Loan amount")+
+  ylab("Loan Count")
 ```
 
-```{r loan purpose, echo = FALSE}
-# Count of loan purpose
-ggplot(loan,aes(purpose))+
-  geom_bar()+
-  ggtitle("Count of Loans by purpose")+
-  xlab("Purpose")+
-  coord_flip()
+```{r months since last delinquency dist, echo = F}
+# distribution of months since last delinquency
+ggplot(loan, aes(mths_since_last_delinq))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=30, color="black", fill="gray65")+
+  ggtitle("Months Since Last Delinquency")+
+  xlab("Months")+
+  ylab("Loan Count")
 ```
 
-```{r loans by date, echo = F}
-ggplot(loan,aes(issue_d))+
-  geom_histogram(bins = 48)+
-  ggtitle("Count of Monthly Loan Issues")+
-  xlab("Issue Date")+
-  ylab("Count")
+```{r open accounts dist, echo = FALSE}
+# distribution of open accounts
+ggplot(loan,aes(open_acc))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_bar(color="black", fill="gray65")+
+  ggtitle("Open Credit Line Accounts")+
+  xlab("Open Accounts")+
+  ylab("Loan Count")
+```
+
+```{r paid dist, echo = FALSE}
+# distribution of total paid
+ggplot(loan, aes(tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 30, color="black", fill="gray65")+
+  ggtitle("Total Paid")+
+  xlab("Total Paid")+
+  ylab("Loan Count")
 ```
 
 ##### **Categorical Variable Analysis**
 
-```{r repaid by purpose, echo = FALSE}
-# boxplot of total repaid by purpose, with coordinates flipped
+```{r paid by purpose, echo = FALSE}
+# boxplot of total paid by purpose, with coordinates flipped 
 ggplot(loan, aes(purpose, tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Purpose")+
@@ -194,8 +222,10 @@ ggplot(loan, aes(purpose, tot_paid))+
 ```
 
 ```{r loan amount by purpose, echo = FALSE}
-# boxplot of loan amount by purpose
+# boxplot of loan amount by purpose 
 ggplot(loan,aes(purpose,loan_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Loan Amount by Purpose")+
@@ -204,25 +234,47 @@ ggplot(loan,aes(purpose,loan_amnt))+
 ```
 
 ```{r total paid by grade, echo = FALSE}
+# boxplot of total paid by grade
 ggplot(loan,aes(grade,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
-  ggtitle("Total Paid by loan grade")+
+  ggtitle("Total Paid by Loan Grade")+
   xlab("Loan Grade")+
   ylab("Total Paid")
 ```
 
 ```{r tota paid by home ownership, echo = FALSE}
+# boxplot of total paid by home ownership
 ggplot(loan,aes(home_ownership,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Home Ownership")+
   xlab("Home Ownership")+
   ylab("Total Paid")
+
+```
+
+```{r total paid by employment length, echo = FALSE}
+# boxplot of total paid by employment length
+ggplot(loan,aes(emp_length,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Employment Length")+
+  xlab("Employment Length")+
+  ylab("Total Paid")
 ```
 
 ```{r total paid by verification status, echo = FALSE}
+# boxplot of total paid by verification status
 ggplot(loan,aes(verification_status,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Verification Status")+
@@ -230,15 +282,25 @@ ggplot(loan,aes(verification_status,tot_paid))+
   ylab("Total Paid")
 ```
 
+```{r total paid by loan status, echo = FALSE}
+# boxplot of total paid by loan status
+ggplot(loan,aes(loan_status,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Loan Status")+
+  xlab("Loan Status")+
+  ylab("Total Paid")
+```
 
 ##### **Correlation Analysis**
 
 **ggpairs PLOT IS DISABLED FOR EASIER KNITTING**
 ```{r pairwise plot, echo = FALSE}
 numeric_loan <- loan %>%
-  select(int_rate,installment,annual_inc,inq_last_6mths,
-         mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
-         revol_util,recoveries,loan_amnt,tot_paid  )
+  dplyr::select(int_rate,installment,annual_inc,inq_last_6mths,open_acc,
+                pub_rec,revol_bal,revol_util,loan_amnt,tot_paid)
 
 #correlation plot
 corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
