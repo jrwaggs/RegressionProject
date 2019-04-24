@@ -1,7 +1,7 @@
 ---
 title: "Regression Project"
 author: "JR Waggoner, Jose Baldomar, Andre Louie"
-date: "April 10, 2019"
+date: "April 26, 2019"
 output: html_document
 ---
 
@@ -311,8 +311,8 @@ corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
 ```
 
 ### **Model Identification and Evaluation** 
-Our final OLS model was developed over 8 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five model iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d,grade, and delinq_2yrs.  loan_amnt was dropped due to its multicolinearity with the installment variable.  And, finally, we removed the state independent variable as its influence on total paid was minimal and the regression model could be made simpler by removing a 49-level factor variable. 
-  Our 5th model iteration produced a set of residuals that failed both Non-constant variance and Shapiro-Wilk normailty tests:
+Our final OLS model was developed over 8 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five model iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d,grade, and delinq_2yrs.  The variable dependant variable loan_amnt was dropped due to its multicolinearity with the installment.  And, finally, we removed the state independent variable as its influence on the fit of the model was minimal, and the regression model could be made more manageable by removing a 49-level factor variable. 
+  Our 6th model iteration produced a set of residuals that failed both Non-constant variance and Shapiro-Wilk normailty tests:
 
 ```{r 6th model, echo = FALSE}
 testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+
@@ -330,13 +330,13 @@ ncvTest(testmodel6)
 shapiro.test(testmodel6$residuals)
 ```
 
-A Box-Cox test of the output, total_paid, revealed a transformation between log and sqrt may help normalize residual variance:
+A Box-Cox test of the output, total_paid, revealed a transformation approximately between log(Y) and sqrt(Y) may help normalize residual variance:
 ```{r box cox,echo = FALSE}
 box <- boxcox(testmodel6)
 # boxcox test says lambda of somewhere between 0 and .5 may work for tot_paid
 ```
 
-A cube-root transformation of our output produced residuals that passed the NCV test, but still failed the normailty test:
+A cube-root transformation of our output produced residuals that passed the NCV test, but still failed the test of normality:
 
 ```{r model 7, echo = F}
 testmodel7 <- lm((tot_paid^(1/3))~term+int_rate+installment+grade+emp_length+home_ownership+
@@ -369,13 +369,13 @@ loantrans$revol_bal <- loantrans$revol_bal^(.2773)
 loantrans$revol_util <- loantrans$revol_util^(.3991)
 loantrans$tot_paid <-loantrans$tot_paid^(.333333) # target outcome 
 
-#copy rows to new DF
+#copy test rows to new DF
 test_case <- loantrans[c(13,1000,156,228),]
 
-#undo tot_paid transformation for predictions later on
+#undo tot_paid transformation for predictions 
 test_case$tot_paid <- test_case$tot_paid^3
 
-#delete rows from original DF
+#delete test rows from original DF
 loantrans <- loantrans[-c(13,1000,156,228),]
 
 
@@ -433,10 +433,20 @@ kable(pred_table) %>%
   kable_styling(bootstrap_options = c("striped","hover","condensed"))
 ```
 
-For these observations, the model does not appear to make  approporiate predictions for total amounts paid.  Total paid actual for the second observation, '13', falls outside of the 95% prediction interval.  Three of the observations had errors in excess of 20%, which is not appropriate given the potential business consequences of utilizing such erroneous estimates.   
+For these observations, the model does not appear to make  approporiate predictions for total amounts paid.  Total paid actual for the second observation, '13', falls outside of the 95% prediction interval.  Three of the observations had errors in excess of 20%.
+
+Applying the model to the training data and analyzing prediction errors produces an RMSE of :
+
+```{r RMSE, echo = F}
+mape_pred <- predict(testmodel10)^3
+
+rmse(testmodel10$model$tot_paid^3,mape_pred)
+```
+
+Given the potential business consequences of utilizing such erroneous estimates, it would not be approporiate to apply this model to new or similar loan data.    
 
 ### **Assumptions and Limitations**
-Assumption/Limitation text
+Because the data was gathered and prepared by LendingClub, we were limited in our ability understand certain data points and, more importantly, handle missing information in the data set.  There are a number of borrower credit-related variables that were entirely blank that we feel could have helped build a better model of the total amount paid on a loan.  We also feel that it could be beneficial to bring in outside economic data, as we have hypothesized that economic factors may contribute to why a loan is taken out, its attributes, and how it eventually performs.  In the future, it would also be worth considering how LendingClub's growing popularity as a lending platform affects not only their lending frequency, but also the nature and performance of the loans themselves.    
 
-Limitations - 
-greater economic factors and how they influence both the need for a loan, and what interest rates are charged.  
+The first, and most broad, assumption we made was that the eventual outcome of a loan in terms of total paid could be described by a simple, multiple linear regression model, which does not appear to be the case.  The data may be more suitable for  tree-type or classification models, or for a binary outcome such as whether or not a loan was fully paid off.  
+
