@@ -9,6 +9,7 @@ library(car)
 library(kableExtra)
 library(EnvStats)
 library(corrplot)
+library(tsensembler)
 
 #---------------------------- Data import and Cleaning ------------------------
 
@@ -566,3 +567,13 @@ pred_table <- pred_table%>%
   mutate("% Error" = (abs(tot_paid-fit)/tot_paid)*100)
 
 colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% Error")
+
+
+# code for mean absolute percent error
+
+# using mean absolute scaled error instead
+
+mape_pred <- predict(testmodel10)^3
+
+rmse(testmodel10$model$tot_paid^3,mape_pred)
+mae(testmodel10$model$tot_paid^3,mape_pred)
