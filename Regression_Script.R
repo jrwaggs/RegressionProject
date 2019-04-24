@@ -1,4 +1,3 @@
-
 library(dplyr)
 library(ggplot2)
 library(readr)
@@ -10,6 +9,7 @@ library(car)
 library(kableExtra)
 library(EnvStats)
 library(corrplot)
+
 #---------------------------- Data import and Cleaning ------------------------
 
 # import the CSV
@@ -66,114 +66,242 @@ loan$last_pymnt_d <-anytime(loan$last_pymnt_d)
 #loan <- loan[-c(13,1000,156,228),]
 
 #------------------------------- data exploration -------------------------------------
-
+mean(loan$pct_paid) # the mean % paid back on a failed loan is 35.38%
 
 # ---------- DISTRIBUTIONS
 
-#distribution of loan amounts
-ggplot(loan,aes(loan_amnt))+
-  geom_histogram(bins = 20)+
-  ggtitle("Distribution of Loan Amounts")+
-  xlab("Loan amount")
+# distribution of annual incomes
+ggplot(loan,aes(annual_inc))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 20, color="black", fill="gray65")+
+  ggtitle(("Borrower Annual Income"))+
+  xlab("Annual Income")+
+  xlim(0,200000)+
+  ylab("Loan Count")
+
+# distribution of inquiries last 6 months (not included in markdown)
+ggplot(loan,aes(inq_last_6mths))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_bar(color="black", fill="gray65")+
+  ggtitle("Inquries Last 6 Months")+
+  xlab("Inquiries")+
+  ylab("Loan Count")
+
+# distribution of installment
+ggplot(loan,aes(installment))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=20, color="black", fill="gray65")+
+  ggtitle("Installment")+
+  xlab("Installment")+
+  ylab("Loan Count")
 
 # distribution of interest rates
 ggplot(loan,aes(int_rate))+
-  geom_histogram(bins=20)+
-  ggtitle("Distribution of Loan Interest Rates")+
-  xlab("Interest Rate")
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=20, color="black", fill="gray65")+
+  ggtitle("Loan Interest Rates")+
+  xlab("Interest Rate")+
+  ylab("Loan Count")
+
+# distribution of last payment amount (not included in markdown)
+ggplot(loan,aes(last_pymnt_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=30, color="black", fill="gray65")+
+  ggtitle("Last Payment Amount")+
+  xlab("Last Payment Amount")+
+  ylab("Loan Count")
+
+# distribution of loan amounts 
+ggplot(loan,aes(loan_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 20, color="black", fill="gray65")+
+  ggtitle("Loan Amounts")+
+  xlab("Loan amount")+
+  ylab("Loan Count")
+
+# distribution of months since last delinquency
+ggplot(loan, aes(mths_since_last_delinq))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins=30, color="black", fill="gray65")+
+  ggtitle("Months Since Last Delinquency")+
+  xlab("Months")+
+  ylab("Loan Count")
+
+# distribution of months since last record  (not included in markdown)
+ggplot(loan, aes(mths_since_last_record))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 10, color="black", fill="gray65")+
+  ggtitle("Months Since Last Record")+
+  xlab("Months")+
+  ylab("Loan Count")
+
+# distribution of open accounts
+ggplot(loan,aes(open_acc))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_bar(color="black", fill="gray65")+
+  ggtitle("Open Credit Line Accounts")+
+  xlab("Open Accounts")+
+  ylab("Loan Count")
+
+# distribution of recoveries (not included in markdown)
+ggplot(loan,aes(recoveries))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 30, color="black", fill="gray65")+
+  ggtitle("Recoveries")+
+  xlab("Recoveries")+
+  ylab("Loan Count")
+
+# distribution of Total credit revolving balance (not included in markdown)
+ggplot(loan,aes(revol_bal))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 30, color="black", fill="gray65")+
+  ggtitle("Total Credit Revolving Balance")+
+  xlab("Revolving Balance")+
+  ylab("Loan Count")
+
+# distribution of Revolving Credit Line Utilization Rate (not included in markdown)
+ggplot(loan,aes(revol_util))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 10, color="black", fill="gray65")+
+  ggtitle("Revolving Credit Line Utilization Rate")+
+  xlab("Utilization Rate")+
+  ylab("Loan Count")
 
 # distribution of total paid
 ggplot(loan, aes(tot_paid))+
-  geom_histogram(bins = 30)+
-  ggtitle("Distribution of Total Paid")+
-  xlab("Total Paid")
-
-#distribution of of annual incomes
-ggplot(loan,aes(annual_inc))+
-  geom_histogram(bins = 20)+
-  ggtitle(("Distribution of Borrower Annual Income"))+
-  xlab("Annual Income")+
-  xlim(0,200000)
-
-# Count of loan purpose
-ggplot(loan,aes(purpose))+
-  geom_bar()+
-  ggtitle("Count of Loans by purpose")+
-  xlab("Purpose")+
-  coord_flip()
-
-ggplot(loan,aes(issue_d))+
-  geom_histogram(bins = 48)+
-  ggtitle("Count of Monthly Loan Issues")+
-  xlab("Issue Date")+
-  ylab("Count")
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_histogram(bins = 30, color="black", fill="gray65")+
+  ggtitle("Total Paid")+
+  xlab("Total Paid")+
+  ylab("Loan Count")
 
 #----------CORRELATION ANALYSIS OF NUMERIC VARIABLES 
 
 #subset of only numeric vaiables
 numeric_loan <- loan %>%
-  select(int_rate,installment,annual_inc,inq_last_6mths,
-         mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
-         revol_util,recoveries,loan_amnt,tot_paid  )
+  dplyr::select(int_rate,installment,annual_inc,inq_last_6mths,
+                mths_since_last_delinq,mths_since_last_record,open_acc,pub_rec,revol_bal,
+                revol_util,recoveries,loan_amnt,tot_paid)
 
+#corrplot of numeric values
+corrplot(cor(numeric_loan, use = "na.or.complete"), method = "ellipse") 
 
-#correlation plot
-corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
-
-#ggpairs for correlation numbers and distributions
+#pairwise plots of numeric values  
 ggpairs(numeric_loan)
 
 # ---------RELATIONSHIPS BETWEEN CATEGORICAL VARIABLES AND TARGET VARIABLE
 
-# boxplot of total repaid by purpose, with coordinates flipped
+# boxplot of total paid by purpose, with coordinates flipped 
 ggplot(loan, aes(purpose, tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Purpose")+
   xlab("Purpose")+
   ylab("Total Paid")
 
-# boxplot of loan amount by purpose
+# boxplot of loan amount by purpose 
 ggplot(loan,aes(purpose,loan_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Loan Amount by Purpose")+
   xlab("Purpose")+
   ylab("Loan Amount")
 
+# boxplot of total paid by grade
 ggplot(loan,aes(grade,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
-  ggtitle("Total Paid by loan grade")+
+  ggtitle("Total Paid by Loan Grade")+
   xlab("Loan Grade")+
   ylab("Total Paid")
 
+# boxplot of total paid by home ownership
 ggplot(loan,aes(home_ownership,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Home Ownership")+
   xlab("Home Ownership")+
   ylab("Total Paid")
 
+# boxplot of total paid by verification status
 ggplot(loan,aes(verification_status,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Total Paid by Verification Status")+
   xlab("Verification Status")+
   ylab("Total Paid")
-  
-  
-# ---------- OTHER PLOTS
-# DTI vs. pct_paid
+
+# boxplot of total paid by employment length
+ggplot(loan,aes(emp_length,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Employment Length")+
+  xlab("Employment Length")+
+  ylab("Total Paid")
+
+# boxplot of total paid by term (not included in markdown)
+ggplot(loan,aes(term,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Term")+
+  xlab("Term")+
+  ylab("Total Paid")
+
+# boxplot of total paid by loan status
+ggplot(loan,aes(loan_status,tot_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
+  geom_boxplot()+
+  coord_flip()+
+  ggtitle("Total Paid by Loan Status")+
+  xlab("Loan Status")+
+  ylab("Total Paid")
+
+
+# ---------- OTHER PLOTS (not included in markdown)
+# DTI vs. pct_paid (not included in markdown)
 ggplot(loan, aes(dti, pct_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_point()
 
-# scatterplot plot of loan grade vs.pct_paid
+# scatterplot plot of loan grade vs.pct_paid (not included in markdown)
 ggplot(loan,aes(sub_grade,pct_paid))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_point()
 
-# boxplot of loan amount by purpose
+# boxplot of loan amount by purpose (not included in markdown)
 ggplot(loan,aes(purpose,loan_amnt))+
+  ggtitle("Use theme(plot.title = element_text(hjust = 0.5)) to center") +
+  theme(plot.title = element_text(hjust = 0.5, face="bold"))+
   geom_boxplot()+
   coord_flip()+
   ggtitle("Loan Amount by Purpose")+
@@ -246,16 +374,13 @@ summary(testmodel5)
 
 testmodel6 <- lm(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
                    annual_inc+issue_d+loan_status+purpose+
-                   inq_last_6mths+mths_since_last_delinq+
-                   mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
-                   last_pymnt_d+last_pymnt_amnt+recoveries
+                   inq_last_6mths+
+                   open_acc+pub_rec+revol_bal+revol_util+
+                   last_pymnt_d
                  ,data=loan)
 
 summary(testmodel6)  #adjusted r2 of 87.31 after dropping last credit pulled
-                        # added in recoveries, r2 = .8752
-
-
-
+# added in recoveries, r2 = .8752
 
 #---------------------------Residuals & Analysis ----------
 #augment model summary to df
@@ -266,17 +391,17 @@ ggplot(modeldf,aes(.fitted,.resid))+
   geom_point()+
   #ylim(-15000,15000)+
   geom_line( y = 0, linetype = 2, color = "darkred")
-  
-  
+
+
 #test for non constant variance, 
-  #very small P score, non constant variance is present
+#very small P score, non constant variance is present
 ncvTest(testmodel6)
 
 #quantile plot
 qqPlot(testmodel6,pch=16)
 
 #residual normality test
-  #  Very small p value, residuals not normally distributed
+#  Very small p value, residuals not normally distributed
 shapiro.test(testmodel6$residuals)
 
 
@@ -348,7 +473,7 @@ summary(powerTransform(loan$annual_inc))#Est Power .076 new -0.0388
 summary(powerTransform(loan$inq_last_6mths, family = "bcnPower"))#Est Power .128 new -0.0139
 
 summary(powerTransform(loan$mths_since_last_delinq, family = "bcnPower"))#Est Power .1972 new 0.5837
- 
+
 summary(powerTransform(loan$mths_since_last_record, family = "bcnPower"))#Est Power -.0688 new = 1.05
 
 summary(powerTransform(loan$open_acc, family = "bcnPower"))#Est Power .3411  new .286
@@ -382,12 +507,12 @@ loantrans <- loantrans[-c(13,1000,156,228),]
 
 
 #drop grade, emplength
-
+  
 testmodel10 <- lm(tot_paid~term+int_rate+installment+home_ownership+
-                   annual_inc+issue_d+loan_status+purpose+
-                   inq_last_6mths+open_acc+revol_bal+revol_util+
-                   last_pymnt_d+last_pymnt_amnt+recoveries+verification_status
-                 ,data=loantrans)
+                    annual_inc+issue_d+loan_status+purpose+
+                    inq_last_6mths+open_acc+revol_bal+revol_util+
+                    last_pymnt_d+last_pymnt_amnt+recoveries+verification_status
+                  ,data=loantrans)
 
 summary(testmodel10) # adjusted R^2 of .942
 ncvTest(testmodel10) #fail
@@ -419,11 +544,11 @@ shapiro.test(testmodel10$residuals) # fail
 
 
 boxTidwell(tot_paid~term+int_rate+installment+grade+emp_length+home_ownership+
-  annual_inc+issue_d+loan_status+purpose+
-  inq_last_6mths+mths_since_last_delinq+
-  mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
-  last_pymnt_d+last_pymnt_amnt+recoveries
-,data=loan)
+             annual_inc+issue_d+loan_status+purpose+
+             inq_last_6mths+mths_since_last_delinq+
+             mths_since_last_record+open_acc+pub_rec+revol_bal+revol_util+
+             last_pymnt_d+last_pymnt_amnt+recoveries
+           ,data=loan)
 
 
 
@@ -441,6 +566,3 @@ pred_table <- pred_table%>%
   mutate("% Error" = (abs(tot_paid-fit)/tot_paid)*100)
 
 colnames(pred_table) <- c("","Total Paid","Predicted","Lower PI","Upper PI","% Error")
-
-
-
