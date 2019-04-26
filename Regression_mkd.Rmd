@@ -21,6 +21,7 @@ library(kableExtra)
 library(EnvStats)
 library(knitr)
 library(corrplot)
+library(caret)
 ```
 
 ``` {r importing the data,echo = FALSE}
