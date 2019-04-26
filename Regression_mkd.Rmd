@@ -128,7 +128,7 @@ loan <- loan %>%
 ### **Exploratory analysis**
 
 ##### **Variable Analysis**
-  Most of our variables have a right or positively skewed distribution. Respective to annual income and total loans paid, it makes sense that these observations have a greater mean than median. For example, from annnual income standpoint most borrowers or households typically make less than 100,000 with some borrowers quite a bit more ranging from 100,000 to 200,000.  
+  Most of our distributions are right or positively skewed. Respective to a majority of variables in our dataset, it makes sense that these observations have a greater mean than median. For example, from annnual income standpoint most borrowers typically make less than 100,000 dollars with some borrowers making quite a bit more ranging from 100,000 to 200,000 dollars.  
 ```{r  income dist, echo=FALSE}
 # distribution of annual incomes
 ggplot(loan,aes(annual_inc))+
@@ -208,7 +208,7 @@ ggplot(loan, aes(tot_paid))+
 ```
 
 ##### **Categorical Variable Analysis**
-  Looking at our boxplots in the analysis, it is clear to see that outliers are present in each one of our visuals. This reflects the point above about how many of our distributions are positively skewed. As we will further investgate, it is possible that data with this many outliers can cause problems from a constant variance and normailty perspective. 
+  Looking at our boxplots, it is clear to see that many extreme outliers are present in each one of our graphs. This reflects the point above about how many of our distributions are positively skewed. As we further investgate, light will be shed on the types of problems this many extreme outliers can cause from a constant variance and normailty perspective. 
 
 ```{r paid by purpose, echo = FALSE}
 # boxplot of total paid by purpose, with coordinates flipped 
@@ -296,7 +296,7 @@ ggplot(loan,aes(loan_status,tot_paid))+
 ```
 
 ##### **Correlation Analysis**
-  In our correlation anlaysis, there is potential multicollinearity that can be spotted between two independent variables, installment and loan amount. If multicollinearity is indeed detected as we conduct our models, then we will need to remove one of these variables. 
+  In our correlation anlaysis, there is potential multicollinearity found between two independent variables, installment and loan amount. If multicollinearity is indeed detected as we conduct our models, then we will need to remove one of these variables. 
 
 **ggpairs PLOT IS DISABLED FOR EASIER KNITTING**
 ```{r pairwise plot, echo = FALSE}
