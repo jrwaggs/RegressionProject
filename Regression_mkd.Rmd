@@ -82,12 +82,11 @@ loan <- loan %>%
 ```
 
 ### **Abstract**
-Between 2007 and 2011, LendingClub issued over 42,000 personal loans to borrowers.  To better understand loan performance in terms of total paid by a borrower, we conducted a multiple regression analysis of the loan data.  Our results illustrate the difficulty in modeling loan performance with multiple regression and were too inconsistent to be used in a business context.  For future analysis, we may consider modeling with methods more appropriate for the dataset and adding additional sources of information.
+  Between 2007 and 2011, LendingClub issued over 42,000 personal loans to borrowers.  To better understand loan performance in terms of total paid by a borrower, we conducted a multiple regression analysis of the loan data.  Our results illustrate the difficulty in modeling loan performance with multiple regression. In conclusion, we learned that LendingClub's loan data was too inconsistent to be used in a business context.  For future analysis, we may consider modeling with methods more appropriate for the dataset and adding additional sources of information.
 
 ### **Introduction**
-
-  In researching this loan data set, our intent is to better understand, and eventually model, the outcome of a loan.  More specifically, we wish to develop an understanding of those factors affect the overall performance or outcome of a LendingClub loan.  We expect a number of interesting business questions can be explored through our analysis, both boroad and narrow in scope.  We will explore loan outcomes as a component of estimating the total value of a loan portfolio.  More narrowly, we also wish to understand those factors that may have the most influence on the overall performance of a given loan.
-
+  In researching this loan data set, our intent is to better understand, and eventually model, the outcome of a loan.  More specifically, we wish to develop an understanding of the factors that affect the overall performance or outcome of a LendingClub loan.  We expect a number of interesting business questions can be explored through our analysis, both boroad and narrow in scope.  We will explore loan outcomes as a component of estimating the total value of a loan portfolio.  More narrowly, we also wish to understand those factors that may have the most influence on the overall performance of a given loan.
+  
 ### **Overview of the DataSet**
   The raw dataset is comprised of information describing all loans issued by LendingClub between 2007 and 2011. The data set can be found at  https://www.lendingclub.com/foliofn/rateDetail.action . From the raw data, a test set was created by first removing all columns that were entirely composed of missing values or contained the same value for each record.  Additionally, columns containing free text - title, description, etc., were removed along with redundant features that were a subset or component of another feature (sub-grade, funded amount,etc)  Finally, a target variable of 'total paid' was created by combining total principal and total interest, excluding any collection amounts or fees received.  Features relating to total amounts collected or recovered were also excluded from the test data set.
 
@@ -129,7 +128,7 @@ Between 2007 and 2011, LendingClub issued over 42,000 personal loans to borrower
 ### **Exploratory analysis**
 
 ##### **Variable Analysis**
-
+  Most of our variables have a right or positively skewed distribution. Respective to annual income and total loans paid, it makes sense that these observations have a greater mean than median. For example, from annnual income standpoint most borrowers or households typically make less than 100,000 with some borrowers quite a bit more ranging from 100,000 to 200,000.  
 ```{r  income dist, echo=FALSE}
 # distribution of annual incomes
 ggplot(loan,aes(annual_inc))+
@@ -209,6 +208,7 @@ ggplot(loan, aes(tot_paid))+
 ```
 
 ##### **Categorical Variable Analysis**
+  Looking at our boxplots in the analysis, it is clear to see that outliers are present in each one of our visuals. This reflects the point above about how many of our distributions are positively skewed. As we will further investgate, it is possible that data with this many outliers can cause problems from a constant variance and normailty perspective. 
 
 ```{r paid by purpose, echo = FALSE}
 # boxplot of total paid by purpose, with coordinates flipped 
@@ -296,6 +296,7 @@ ggplot(loan,aes(loan_status,tot_paid))+
 ```
 
 ##### **Correlation Analysis**
+  In our correlation anlaysis, there is potential multicollinearity that can be spotted between two independent variables, installment and loan amount. If multicollinearity is indeed detected as we conduct our models, then we will need to remove one of these variables. 
 
 **ggpairs PLOT IS DISABLED FOR EASIER KNITTING**
 ```{r pairwise plot, echo = FALSE}
@@ -312,7 +313,7 @@ corrplot(cor(numeric_loan, use = "na.or.complete"),method = "ellipse")
 ```
 
 ### **Model Identification and Evaluation** 
-Our final OLS model was developed over 8 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five model iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d,grade, and delinq_2yrs.  The variable dependant variable loan_amnt was dropped due to its multicolinearity with the installment.  And, finally, we removed the state independent variable as its influence on the fit of the model was minimal, and the regression model could be made more manageable by removing a 49-level factor variable. 
+  Our final OLS model was developed over 8 iterations, which we began by regressing on all available independent variables remaining after our intitial data cleanse.  Through five model iterations, we exlcuded the following variables that did not significantly contribute to our model (p > 0.7), and improved our model fit once removed (adjusted R^2): verification_status, zip_code, earliest_cr_line, total_acc, dti, last_credit_pull_d,grade, and delinq_2yrs. As proven true from our correlation analysis, the independent variable loan_amnt was dropped due to its multicolinearity with the installment. Lastly, we removed the state independent variable as its influence on the fit of the model was minimal, and the regression model could be made more manageable by removing a 49-level factor variable. 
   Our 6th model iteration produced a set of residuals that failed both Non-constant variance and Shapiro-Wilk normailty tests:
 
 ```{r 6th model, echo = FALSE}
@@ -447,7 +448,7 @@ rmse(testmodel10$model$tot_paid^3,mape_pred)
 Given the potential business consequences of utilizing such erroneous estimates, it would not be approporiate to apply this model to new or similar loan data.    
 
 ### **Assumptions and Limitations**
-Because the data was gathered and prepared by LendingClub, we were limited in our ability understand certain data points and, more importantly, handle missing information in the data set.  There are a number of borrower credit-related variables that were entirely blank that we feel could have helped build a better model of the total amount paid on a loan.  We also feel that it could be beneficial to bring in outside economic data, as we have hypothesized that economic factors may contribute to why a loan is taken out, its attributes, and how it eventually performs.  In the future, it would also be worth considering how LendingClub's growing popularity as a lending platform affects not only their lending frequency, but also the nature and performance of the loans themselves.    
+  Because the data was gathered and prepared by LendingClub, we were limited in our ability understand certain data points and, more importantly, handle missing information in the data set.  There are a number of borrower credit-related variables that were entirely blank that we feel could have helped build a better model of the total amount paid on a loan.  We also feel that it could be beneficial to bring in outside economic data, as we have hypothesized that economic factors may contribute to why a loan is taken out, its attributes, and how it eventually performs.  In the future, it would also be worth considering how LendingClub's growing popularity as a lending platform affects not only their lending frequency, but also the nature and performance of the loans themselves.    
 
-The first, and most broad, assumption we made was that the eventual outcome of a loan in terms of total paid could be described by a simple, multiple linear regression model, which does not appear to be the case.  The data may be more suitable for  tree-type or classification models, or for a binary outcome such as whether or not a loan was fully paid off.  
+  The first, and most broad, assumption we made was that the eventual outcome of a loan in terms of total paid could be described by a simple, multiple linear regression model, which does not appear to be the case.  The data may be more suitable for  tree-type or classification models, or for a binary outcome such as whether or not a loan was fully paid off.  
 
