@@ -1,12 +1,11 @@
 ---
-title: "Regression Project"
+title: "LendingClub Loan Data Analysis"
 author: "JR Waggoner, Jose Baldomar, Andre Louie"
 date: "April 26, 2019"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
@@ -22,6 +21,7 @@ library(EnvStats)
 library(knitr)
 library(corrplot)
 library(caret)
+library(tsensembler)
 ```
 
 ``` {r importing the data,echo = FALSE}
@@ -82,7 +82,7 @@ loan <- loan %>%
 ```
 
 ### **Abstract**
-Abstract text
+Between 2007 and 2011, LendingClub issued over 42,000 personal loans to borrowers.  To better understand loan performance in terms of total paid by a borrower, we conducted a multiple regression analysis of the loan data.  Our results illustrate the difficulty in modeling loan performance with multiple regression and were too inconsistent to be used in a business context.  For future analysis, we may consider modeling with methods more appropriate for the dataset and adding additional sources of information.
 
 ### **Introduction**
 
